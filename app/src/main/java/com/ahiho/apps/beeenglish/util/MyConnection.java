@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 
@@ -35,16 +36,19 @@ import javax.net.ssl.HttpsURLConnection;
  */
 
 public class MyConnection {
-    private static final String BASE_URL = "https://beeenglish.mobile-backend.ahiho.com/";
+    private static final String BASE_URL = "https://beeenglish.mobile-backend.ahiho.com/api/";
     private static MyConnection myConnection = null;
-
-    public static MyConnection getInstanceMyConnection() {
+    private final String METHOD_POST="POST";
+    private final String METHOD_GET="GET";
+    private Context mContext;
+    public static MyConnection getInstanceMyConnection(Context context) {
         if (myConnection == null)
-            myConnection = new MyConnection();
+            myConnection = new MyConnection(context);
         return myConnection;
     }
 
-    public MyConnection() {
+    public MyConnection(Context context) {
+        mContext=context;
     }
 
     public static boolean isOnline(Context context) {
@@ -55,28 +59,29 @@ public class MyConnection {
     }
 
     public ResponseData signIn(String userName, String password) {
-        String url = MyConnection.BASE_URL + "api/session/auth";
+        String url = MyConnection.BASE_URL + "session/auth";
         HashMap hashMap = new HashMap();
         hashMap.put("username", userName);
         hashMap.put("password", password);
-        return performPostCall(url, hashMap);
+        return performPostCall(url, hashMap,METHOD_POST);
+    }
+    public ResponseData getBooks() {
+        String url = MyConnection.BASE_URL + "books";
+        HashMap hashMap = new HashMap();
+        return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
 
     public ResponseData signUp(String userName,String email, String password) {
-        String url = MyConnection.BASE_URL + "api/users/register";
+        String url = MyConnection.BASE_URL + "users/register";
         HashMap hashMap = new HashMap();
         hashMap.put("username", userName);
         hashMap.put("password", password);
         hashMap.put("email", email);
-        hashMap.put("mobile", "");
-        hashMap.put("first_name", "");
-        hashMap.put("last_name", "");
-        hashMap.put("avatar", "");
-        return performPostCall(url, hashMap);
+        return performPostCall(url, hashMap,METHOD_POST);
     }
 
 
-    private ResponseData performPostCall(String requestURL, HashMap<String, String> postDataParams) {
+    private ResponseData performPostCall(String requestURL, HashMap<String, String> postDataParams,String method) {
 
         ResponseData responseData = new ResponseData();
         URL url;
@@ -88,7 +93,7 @@ public class MyConnection {
             conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(30000);
             conn.setConnectTimeout(30000);
-            conn.setRequestMethod("POST");
+            conn.setRequestMethod(method);
             conn.setDoInput(true);
             conn.setDoOutput(true);
 
@@ -107,7 +112,62 @@ public class MyConnection {
                 String line;
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 while ((line = br.readLine()) != null) {
-                    response += "\n" + line;
+//                    response += "\n" + line;
+                    response += line;
+                }
+            } else {
+                response = conn.getResponseMessage();
+            }
+            responseData.setResponseData(response);
+        } catch (Exception e) {
+        } finally {
+            if (conn != null)
+                conn.disconnect();
+        }
+        Log.e("RESPONSE_SERVER", response);
+        return responseData;
+    }
+
+    private ResponseData performPostCallUseHeader(String requestURL, HashMap<String, String> postDataParams,String method) {
+
+        ResponseData responseData = new ResponseData();
+        URL url;
+        String response = "";
+        HttpURLConnection conn = null;
+        try {
+            url = new URL(requestURL);
+
+            conn = (HttpURLConnection) url.openConnection();
+            String accessToken = UtilSharedPreferences.getInstanceSharedPreferences(mContext).getAccessToken();
+            if(!accessToken.isEmpty()) {
+                String basicAuth = "Bearer " +accessToken;
+                conn.setRequestProperty("User-Agent", "BeeEnglishAndroid");
+                conn.setRequestProperty("Accept","application/json");
+                conn.setRequestProperty("Authorization",basicAuth);
+            }
+            conn.setReadTimeout(30000);
+            conn.setConnectTimeout(30000);
+            conn.setRequestMethod(method);
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(getPostDataString(postDataParams));
+
+            writer.flush();
+            writer.close();
+            os.close();
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                responseData.setResponseState(true);
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = br.readLine()) != null) {
+//                    response += "\n" + line;
+                    response += line;
                 }
             } else {
                 response = conn.getResponseMessage();
@@ -130,6 +190,9 @@ public class MyConnection {
      * @throws UnsupportedEncodingException
      */
     private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+        if(params.isEmpty()){
+            return "";
+        }
         StringBuilder result = new StringBuilder();
         boolean isFirst = true;
         result.append("{");

@@ -12,7 +12,7 @@ import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
  */
 
 public class MySnackBar {
-    private  Snackbar snackbar;
+    private Snackbar snackbar;
     private View mView;
     private Activity mActivity;
 
@@ -28,8 +28,15 @@ public class MySnackBar {
         snackbar.show();
     }
 
+    public void showText(int textResource) {
+        snackbar = Snackbar
+                .make(mView, textResource, Snackbar.LENGTH_LONG);
+        UtilActivity.hiddenKeyBoard(mActivity);
+        snackbar.show();
+    }
+
     public void showTextAction(String text, String action, final OnCallbackSnackBar onCallbackSnackBar) {
-        snackbar=Snackbar.make(mView, text, Snackbar.LENGTH_LONG)
+        snackbar = Snackbar.make(mView, text, Snackbar.LENGTH_LONG)
                 .setAction(action, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -42,7 +49,7 @@ public class MySnackBar {
     }
 
     public void showTextAction(int textResource, int actionResource, final OnCallbackSnackBar onCallbackSnackBar) {
-        snackbar=Snackbar.make(mView, textResource, Snackbar.LENGTH_LONG)
+        snackbar = Snackbar.make(mView, textResource, Snackbar.LENGTH_LONG)
                 .setAction(actionResource, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

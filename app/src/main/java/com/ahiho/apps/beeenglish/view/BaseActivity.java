@@ -3,21 +3,19 @@ package com.ahiho.apps.beeenglish.view;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
+import android.view.ViewGroup;
 
 import com.ahiho.apps.beeenglish.R;
-import com.ahiho.apps.beeenglish.model.ResponseData;
 import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
 import com.ahiho.apps.beeenglish.util.MySnackBar;
+import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.ahiho.apps.beeenglish.util.UtilString;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import static com.ahiho.apps.beeenglish.util.MyConnection.noConnectInternet;
 import static com.ahiho.apps.beeenglish.util.MyConnection.turnOnWifi;
@@ -28,10 +26,47 @@ import static com.ahiho.apps.beeenglish.util.MyConnection.turnOnWifi;
 
 public class BaseActivity extends AppCompatActivity {
     private UtilString mUtilString;
-    private MySnackBar mSnackbar;
+    public MySnackBar mSnackbar;
+    private UtilSharedPreferences mUtilSharedPreferences;
+    private MyConnection mMyConnection;
 
-    public void setViewShowSnackBar(View view) {
-        mSnackbar = new MySnackBar(BaseActivity.this, view);
+    private final int ACTION_SIGN_IN = 0;
+    private final int ACTION_SIGN_UP = 1;
+    private final int ACTION_GET_BOOKS = 2;
+    public ProgressDialog progressDialog;
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        final ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this
+                .findViewById(android.R.id.content)).getChildAt(0);
+        mSnackbar = new MySnackBar(BaseActivity.this, viewGroup);
+        mMyConnection = MyConnection.getInstanceMyConnection(BaseActivity.this);
+        mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(BaseActivity.this);
+    }
+
+    public void dismissDialog() {
+        if ((progressDialog != null) && progressDialog.isShowing())
+            progressDialog.dismiss();
+        progressDialog = null;
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        dismissDialog();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        dismissDialog();
+        super.onPause();
+    }
+
+
+    public void signOut() {
+        mUtilSharedPreferences.signOut();
     }
 
     @Override
@@ -66,98 +101,18 @@ public class BaseActivity extends AppCompatActivity {
         mSnackbar.showText(text);
     }
 
+    public void showSnackBar(int textResource) {
+        mSnackbar.showText(textResource);
+    }
 
-    public void actionSignIn(String email, String password) {
+    public boolean isOnline() {
         if (MyConnection.isOnline(BaseActivity.this)) {
-            new SignIn(email, password).execute();
+            return true;
         } else {
             noConnectInternet(BaseActivity.this, mSnackbar);
         }
+        return false;
     }
 
-    public void actionSignUp(String username, String email, String password) {
-        if (MyConnection.isOnline(BaseActivity.this)) {
-            new SignUp(username, email, password).execute();
-        } else {
-            noConnectInternet(BaseActivity.this, mSnackbar);
-        }
-    }
-
-
-    class SignIn extends AsyncTask<Void, Void, ResponseData> {
-
-        private ProgressDialog mDialog;
-        private String mEmail, mPassword;
-
-        public SignIn(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mDialog = ProgressDialog.show(BaseActivity.this, null,
-                    "Loading...", true);
-        }
-
-        @Override
-        protected ResponseData doInBackground(Void... params) {
-            return MyConnection.getInstanceMyConnection().signIn(mEmail, mPassword);
-        }
-
-        @Override
-        protected void onPostExecute(ResponseData responseData) {
-            mDialog.dismiss();
-            if(responseData.isResponseState()){
-                try {
-                    JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-                } catch (JSONException e) {
-
-                }
-            }else{
-                mSnackbar.showText(responseData.getResponseData());
-            }
-            super.onPostExecute(responseData);
-        }
-    }
-
-    class SignUp extends AsyncTask<Void, Void, ResponseData> {
-
-        private ProgressDialog mDialog;
-        private String mUserName, mEmail, mPassword;
-
-        public SignUp(String username, String email, String password) {
-            mUserName = username;
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mDialog = ProgressDialog.show(BaseActivity.this, null,
-                    "Loading...", true);
-        }
-
-        @Override
-        protected ResponseData doInBackground(Void... params) {
-            return MyConnection.getInstanceMyConnection().signUp(mUserName,mEmail, mPassword);
-        }
-
-        @Override
-        protected void onPostExecute(ResponseData responseData) {
-            mDialog.dismiss();
-            if(responseData.isResponseState()){
-                try {
-                    JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-                } catch (JSONException e) {
-
-                }
-
-            }else{
-                mSnackbar.showText(responseData.getResponseData());
-            }
-            super.onPostExecute(responseData);
-        }
-    }
 
 }

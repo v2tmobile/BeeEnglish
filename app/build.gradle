@@ -10,11 +10,27 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    signingConfigs {
+        config {
+            keyAlias 'bee_english'
+            keyPassword 'koko12Et'
+            storeFile file('/Users/theptokim/Desktop/Android/bee_key.jks')
+            storePassword 'koko12Et'
+        }
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            multiDexKeepFile file('dex.keep')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+        }
+        debug {
+            debuggable true
+            signingConfig signingConfigs.config
         }
     }
 }
@@ -27,6 +43,14 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
+    compile 'com.google.android.gms:play-services:9.8.0'
+    compile 'com.google.android.gms:play-services-auth:9.8.0'
+    compile 'com.google.android.gms:play-services-plus:9.8.0'
     compile 'com.facebook.android:facebook-android-sdk:4.10.1'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.joanzapata.pdfview:android-pdfview:1.0.4@aar'
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'io.realm:realm-android:0.82.1'
     testCompile 'junit:junit:4.12'
 }
+apply plugin: 'com.google.gms.google-services'

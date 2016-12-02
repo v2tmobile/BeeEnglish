@@ -1,14 +1,22 @@
 package com.ahiho.apps.beeenglish.view;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import com.ahiho.apps.beeenglish.R;
-import com.ahiho.apps.beeenglish.util.UtilActivity;
-import com.ahiho.apps.beeenglish.util.UtilString;
+import com.ahiho.apps.beeenglish.model.ResponseData;
+import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
+import com.ahiho.apps.beeenglish.util.Identity;
+import com.ahiho.apps.beeenglish.util.MyConnection;
+import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -18,6 +26,17 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,32 +47,49 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private TextView tvForgotPassword;
     private EditText etEmail, etPassword;
     private Button btSignIn, btSignUp;
     private LoginButton btSignInFacebook;
+    private SignInButton btSignInGoogle;
+    private GoogleApiClient mGoogleApiClient;
     private CallbackManager callbackManager;
+    private final int RC_SIGN_IN = 100;
+    private final int RC_SIGN_UP = 101;
+    private UtilSharedPreferences mUtilSharedPreferences;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         init();
+//        startActivity(new Intent(MainActivity.this,TestVocabularyActivity.class));
+//new DownloadFile().execute();
+        if (isLogin()) {
+            startHomeActivity();
+        }
+    }
+
+
+    private void startHomeActivity() {
+        Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void init() {
         FacebookSdk.sdkInitialize(MainActivity.this);
         setContentView(R.layout.activity_main);
+        mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(MainActivity.this);
         etEmail = (EditText) findViewById(R.id.etEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
         btSignIn = (Button) findViewById(R.id.btSignIn);
         btSignUp = (Button) findViewById(R.id.btSignUp);
         btSignInFacebook = (LoginButton) findViewById(R.id.btSignInFacebook);
+        btSignInGoogle = (SignInButton) findViewById(R.id.btSignInGoogle);
         tvForgotPassword = (TextView) findViewById(R.id.tvForgotPassword);
-
-        setViewShowSnackBar(etEmail);
 
         btSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,11 +97,21 @@ public class MainActivity extends BaseActivity {
                 signIn();
             }
         });
+        configSignInGoogle();
+        btSignInGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mGoogleApiClient.isConnecting()) {
+                    Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+                    startActivityForResult(signInIntent, RC_SIGN_IN);
+                }
+            }
+        });
 
         btSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,SignUpActivity.class));
+                startActivityForResult(new Intent(MainActivity.this, SignUpActivity.class), RC_SIGN_UP);
             }
         });
 
@@ -97,12 +143,37 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    private boolean isLogin() {
+        boolean result = false;
+        long timeExpired = UtilSharedPreferences.getInstanceSharedPreferences(MainActivity.this).getAccessTokenExpired();
+        long currentTime = System.currentTimeMillis() / 1000;
+        if ((timeExpired - currentTime) > 0) {
+            result = true;
+        }
+        return result;
+    }
+
+    private void configSignInGoogle() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(new Scope(Scopes.PLUS_LOGIN))
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .addApi(Plus.API)
+                .build();
+    }
+
     private void signIn() {
         String email = etEmail.getText().toString();
         String password = etPassword.getText().toString();
         if (!email.contains(" ")) {
             if (password.length() > 4) {
-                actionSignIn(email,password);
+                if (isOnline())
+                    new SignIn(email, password).execute();
             } else {
                 etPassword.setError(getString(R.string.err_password_short));
                 etPassword.requestFocus();
@@ -114,20 +185,66 @@ public class MainActivity extends BaseActivity {
     }
 
 
-
-
-
-
-
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (callbackManager != null)
-            callbackManager.onActivityResult(requestCode, resultCode, data);
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        switch (requestCode) {
+            case RC_SIGN_IN: {
+//            progressDialog = ProgressDialog.show(LoginDialog.this, null,
+//                    getString(R.string.loading), true);
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                GoogleSignInAccount account = result.getSignInAccount();
+                handleSignInGoogle(result);
+            }
+            break;
+            case RC_SIGN_UP:
+                String email = data.getStringExtra(Identity.EXTRA_USER_NAME);
+                String password = data.getStringExtra(Identity.EXTRA_PASSWORD);
+                etEmail.setText(email);
+                etPassword.setText(password);
+                signIn();
+                break;
+            default:
+                if (callbackManager != null)
+                    callbackManager.onActivityResult(requestCode, resultCode, data);
+                // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+                break;
+        }
+    }
 
+    private void handleSignInGoogle(GoogleSignInResult result) {
+        if (result.isSuccess()) {
+            String birthday = "";
+            int sex = 0;
+            try {
+                Person person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+                // Signed in successfully, show authenticated UI.
+                sex = person.getGender();
+                if (person.getBirthday() != null)
+                    birthday = person.getBirthday();
+            } catch (Exception ex) {
+
+            }
+            GoogleSignInAccount acct = result.getSignInAccount();
+            String id = acct.getId();
+            String email = acct.getEmail();
+            String name = acct.getDisplayName();
+            String linkAvatar = "";
+            try {
+                Uri uri = acct.getPhotoUrl();
+//                String is = acct.getIdToken();
+                if (uri != null)
+                    linkAvatar = uri.toString();
+            } catch (Exception ex) {
+            }
+
+//            new SignUpTask(1,id,name,email).execute();
+//            String info = "ID: " + id + "\nEmail: " + email + "\nName: " + name + " - Gender: " + sex + "\nBirthday: " + birthday;
+//            Log.e("RESPONSE_SERVER", info);
+        } else {
+            // Signed out, show unauthenticated UI.
+//            Toast.makeText(MainActivity.this, "Không thể đăng nhập", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void handleSignInFacebook(AccessToken accessToken, final String socialId) {
@@ -187,5 +304,66 @@ public class MainActivity extends BaseActivity {
         return outputText;
     }
 
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    class SignIn extends AsyncTask<Void, Void, ResponseData> {
+
+        private String mEmail, mPassword;
+
+        public SignIn(String... params) {
+            mEmail = params[0];
+            mPassword = params[1];
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(MainActivity.this, null,
+                    getString(R.string.loading), true);
+        }
+
+        @Override
+        protected ResponseData doInBackground(Void... params) {
+            return MyConnection.getInstanceMyConnection(MainActivity.this).signIn(mEmail, mPassword);
+        }
+
+        @Override
+        protected void onPostExecute(ResponseData responseData) {
+            progressDialog.dismiss();
+            if (responseData.isResponseState()) {
+
+                postSignIn(responseData, mEmail, mPassword);
+            } else {
+                showSnackBar(responseData.getResponseData());
+            }
+            super.onPostExecute(responseData);
+        }
+    }
+
+    private void postSignIn(ResponseData responseData, final String email, final String password) {
+        try {
+            JSONObject jsonObject = new JSONObject(responseData.getResponseData());
+            if (jsonObject.getBoolean("success")) {
+                JSONObject data = jsonObject.getJSONObject("data");
+                mUtilSharedPreferences.setUserData(data.getString("user"));
+                mUtilSharedPreferences.setAccessToken(data.getString("access_token"));
+                mUtilSharedPreferences.setAccessTokenExpired(data.getLong("expires_in"));
+                showSnackBar(R.string.success_sign_in);
+                startHomeActivity();
+            } else {
+                mSnackbar.showTextAction(R.string.err_sign_in, R.string.bt_try_connection, new OnCallbackSnackBar() {
+                    @Override
+                    public void onAction() {
+                        new SignIn(email, password).execute();
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            showSnackBar(R.string.err_json_exception);
+        }
+    }
 
 }

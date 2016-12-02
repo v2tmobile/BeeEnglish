@@ -1,24 +1,23 @@
 package com.ahiho.apps.beeenglish.view;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.graphics.Color;
+import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.R;
+import com.ahiho.apps.beeenglish.model.ResponseData;
+import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
-import com.ahiho.apps.beeenglish.util.UtilActivity;
 
-import static com.ahiho.apps.beeenglish.util.MyConnection.noConnectInternet;
-import static com.ahiho.apps.beeenglish.util.MyConnection.openConnectWifi;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SignUpActivity extends BaseActivity {
 
@@ -34,6 +33,8 @@ public class SignUpActivity extends BaseActivity {
         init();
     }
 
+
+
     private void init() {
         btBack = (ImageButton) findViewById(R.id.btBack);
         btHelp = (ImageButton) findViewById(R.id.btHelp);
@@ -43,7 +44,6 @@ public class SignUpActivity extends BaseActivity {
         tvAlreadyAccount = (TextView) findViewById(R.id.tvAlreadyAccount);
         btSignUp = (Button) findViewById(R.id.btSignUp);
 
-        setViewShowSnackBar(etEmail);
 
         btSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,7 +53,8 @@ public class SignUpActivity extends BaseActivity {
                 String password = etPassword.getText().toString();
                 if (!userName.contains(" ")) {
                     if (password.length() > 4) {
-                        actionSignUp(userName,email,password);
+                        if(isOnline())
+                            new SignUp(userName, email, password).execute();
                     } else {
                         etPassword.setError(getString(R.string.err_password_short));
                         etPassword.requestFocus();
@@ -81,5 +82,53 @@ public class SignUpActivity extends BaseActivity {
     }
 
 
+    class SignUp extends AsyncTask<Void, Void, ResponseData> {
+
+        private String mUserName, mEmail, mPassword;
+
+        public SignUp(String... params) {
+            mUserName = params[0];
+            mEmail = params[1];
+            mPassword = params[2];
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(SignUpActivity.this, null,
+                    getString(R.string.loading), true);
+        }
+
+        @Override
+        protected ResponseData doInBackground(Void... params) {
+            return MyConnection.getInstanceMyConnection(SignUpActivity.this).signUp(mUserName, mEmail, mPassword);
+        }
+
+        @Override
+        protected void onPostExecute(ResponseData responseData) {
+            progressDialog.dismiss();
+            if (responseData.isResponseState()) {
+                        postSignUp(responseData,mUserName,mPassword);
+            } else {
+                showSnackBar(responseData.getResponseData());
+            }
+            super.onPostExecute(responseData);
+        }
+    }
+
+    private void postSignUp(ResponseData responseData,String userName,String password) {
+        try {
+            JSONObject jsonObject = new JSONObject(responseData.getResponseData());
+            if (jsonObject.getBoolean("success")) {
+                showSnackBar(R.string.success_sign_up);
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(Identity.EXTRA_USER_NAME,userName);
+                returnIntent.putExtra(Identity.EXTRA_PASSWORD,password);
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
+            }
+        } catch (JSONException e) {
+            showSnackBar(R.string.err_json_exception);
+        }
+    }
 
 }

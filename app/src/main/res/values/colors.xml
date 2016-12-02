@@ -4,6 +4,20 @@
     <color name="colorPrimaryTran">#aa3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="red_light">#ff4444</color>
+    <color name="red_dark">#cc0000</color>
     <color name="whiteTran">#66FFFFFF</color>
+    <color name="colorHomeBG">#273338</color>
+    <color name="colorHomeRecent">#37474f</color>
+    <color name="colorBGFunction">#eb5557</color>
+    <color name="colorBGFunctionRecent">#2fa69a</color>
+    <color name="colorBookName">#000000</color>
+    <color name="colorBookAuth">#2fa69a</color>
+    <color name="colorBookSize">#f7882d</color>
+    <color name="colorWarning">#FFA726</color>
+    <color name="colorError">#cc0000</color>
+    <color name="colorSuccess">#4CAF50</color>
+
 </resources>

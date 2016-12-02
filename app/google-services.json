@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "788436533624",
+    "project_id": "bee-english"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788436533624:android:f31cd64dbe68803d",
+        "android_client_info": {
+          "package_name": "com.ahiho.apps.beeenglish"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "788436533624-n0538aqdfo05604gvdbujf8lce69dk5a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ahiho.apps.beeenglish",
+            "certificate_hash": "8BDB6F20F318985767990F8853702D61C860D5AA"
+          }
+        },
+        {
+          "client_id": "788436533624-2sf1odvi6sm4h43m21j4cb0686epogip.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnz81hY-U4dZMOx1itKh0jzII1xCl-MbE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

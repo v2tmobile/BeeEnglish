@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group >
+
+        <item
+            android:id="@+id/nav_borrow"
+            android:icon="@drawable/ic_person_white_24dp"
+            android:title="@string/app_name" />
+        <item
+            android:id="@+id/nav_backup"
+            android:icon="@drawable/ic_person_white_24dp"
+            android:title="@string/app_name" />
+        <item
+            android:id="@+id/nav_restore"
+            android:icon="@drawable/ic_person_white_24dp"
+            android:title="@string/app_name" />
+
+    </group>
+
+
+</menu>
