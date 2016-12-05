@@ -43,9 +43,16 @@
             android:theme="@style/FullScreen">
         </activity>
         <activity
+            android:screenOrientation="portrait"
             android:name=".view.HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
         </activity>
         <activity android:name=".view.VocabularyActivity">
         </activity>

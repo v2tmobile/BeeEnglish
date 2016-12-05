@@ -72,4 +72,11 @@ public class UtilSharedPreferences {
     public void setBookLastPosition(String key,int expired) {
         sharedPreferences.edit().putInt(key, expired).apply();
     }
+    public long getBookDownloadId(String key) {
+        return sharedPreferences.getLong(key, 0);
+    }
+
+    public void setBookDownloadId(String key,long bookDownloadId) {
+        sharedPreferences.edit().putLong(key, bookDownloadId).apply();
+    }
 }

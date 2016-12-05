@@ -6,10 +6,12 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 
 import com.ahiho.apps.beeenglish.R;
+import com.ahiho.apps.beeenglish.my_interface.OnCallbackGrantedPermission;
 import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
@@ -24,7 +26,7 @@ import static com.ahiho.apps.beeenglish.util.MyConnection.turnOnWifi;
  * Created by theptokim on 11/25/16.
  */
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity{
     private UtilString mUtilString;
     public MySnackBar mSnackbar;
     private UtilSharedPreferences mUtilSharedPreferences;
@@ -94,9 +96,40 @@ public class BaseActivity extends AppCompatActivity {
                 });
                 return;
             }
+            case Identity.REQUEST_PERMISSION_READ_WRITE_FILE:
+                if (grantResults.length > 0) {
+                    int result = 0;
+                    for (int grant : grantResults) {
+                        result += grant;
+                    }
+                    if (result == PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                }
+                mSnackbar.showTextAction(R.string.err_permission_file, R.string.bt_try_connection, new OnCallbackSnackBar() {
+                    @Override
+                    public void onAction() {
+                        grantPermissionReadWriteFile();
+                    }
+                });
+                break;
         }
     }
 
+    public boolean grantPermissionReadWriteFile() {
+        boolean result =false;
+        int permissionReadFile = ContextCompat.checkSelfPermission(BaseActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+        int permissionWriteFile = ContextCompat.checkSelfPermission(BaseActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionReadFile != PackageManager.PERMISSION_GRANTED || permissionWriteFile != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(BaseActivity.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, Identity.REQUEST_PERMISSION_READ_WRITE_FILE);
+        }else{
+            result=true;
+        }
+        return result;
+    }
     public void showSnackBar(String text) {
         mSnackbar.showText(text);
     }
@@ -113,6 +146,7 @@ public class BaseActivity extends AppCompatActivity {
         }
         return false;
     }
+
 
 
 }

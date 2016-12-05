@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
+import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.Button;
 
@@ -13,10 +15,15 @@ import com.ahiho.apps.beeenglish.my_interface.OnCallbackDownload;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+
+import io.realm.internal.IOException;
 
 import static android.content.Context.DOWNLOAD_SERVICE;
 
@@ -26,9 +33,9 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class MyFile {
 
-    private static final String APP_FOLDER = "bee_english";
-    private static final String PICTURE_FOLDER = "pictures";
-    private static final String BOOK_FOLDER = "/books";
+    public static final String APP_FOLDER = "bee_english";
+    public static final String PICTURE_FOLDER = "pictures";
+    public static final String BOOK_FOLDER = "books";
 
     public static long getFolderSize(File f) {
         long size = 0;
@@ -114,11 +121,11 @@ public class MyFile {
             byte[] buff = new byte[sizeBuff];
 
             int len;
-            int total=0;
+            int total = 0;
             while ((len = inStream.read(buff)) != -1) {
                 outStream.write(buff, 0, len);
-                total+=len;
-                callbackDownload.postProgress((total*100)/size);
+                total += len;
+                callbackDownload.postProgress((total * 100) / size);
             }
 
             outStream.flush();
@@ -129,19 +136,36 @@ public class MyFile {
             callbackDownload.downloadSuccess(uriFile);
         } catch (Exception e) {
             callbackDownload.downloadError(e);
-
         }
 
         return uriFile;
     }
 
-    public  static String getFileName(String path){
-        String s=URLUtil.guessFileName(path, null, null);
+    public static String getFileName(String path) {
+        String s = URLUtil.guessFileName(path, null, null);
         return s;
     }
 
-    public static String convertUri2FileUri(String uri){
+    public static String convertUri2FileUri(String uri) {
         return uri.replace("file://", "");
+    }
+
+    public static void copy(File src, File dst) {
+        InputStream in = null;
+        try {
+            in = new FileInputStream(src);
+
+            OutputStream out = new FileOutputStream(dst);
+            // Transfer bytes from in to out
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        } catch (Exception e) {
+        }
     }
 
 }

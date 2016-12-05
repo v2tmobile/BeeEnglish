@@ -24,7 +24,6 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            multiDexKeepFile file('dex.keep')
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }

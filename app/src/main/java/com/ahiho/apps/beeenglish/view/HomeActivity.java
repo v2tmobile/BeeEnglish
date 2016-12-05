@@ -10,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,7 +34,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends BaseActivity  implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
+public class HomeActivity extends BaseActivity  implements NavigationView.OnNavigationItemSelectedListener, OnQueryTextListener {
 
     private NavigationView mNavigationView;
     private RelativeLayout llHeader;
@@ -50,7 +51,10 @@ public class HomeActivity extends BaseActivity  implements NavigationView.OnNavi
         setContentView(R.layout.activity_home);
 
         init();
+        grantPermissionReadWriteFile();
     }
+
+
 
     private void init() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -129,7 +133,9 @@ public class HomeActivity extends BaseActivity  implements NavigationView.OnNavi
         getMenuInflater().inflate(R.menu.menu_home, menu);
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchView.setOnQueryTextListener(this);
+        if (searchView != null) {
+            searchView.setOnQueryTextListener(this);
+        }
         return true;
     }
 
@@ -149,23 +155,22 @@ public class HomeActivity extends BaseActivity  implements NavigationView.OnNavi
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-
         return false;
     }
 
     @Override
-    public boolean onQueryTextChange(String query) {
+    public boolean onQueryTextChange(String newText) {
         List<FunctionObject> listSearch = new ArrayList<>();
-        if(query.isEmpty()) {
+        if (newText.isEmpty()) {
             listSearch = functionObjectList;
-        }else {
+        } else {
             for (FunctionObject object : functionObjectList) {
-                if (UtilString.compareStringSearch(object.getName(), query)) {
+                if (UtilString.compareStringSearch(object.getName(), newText)) {
                     listSearch.add(object);
                 }
             }
         }
-        rvRecent.setAdapter(new RecyclerCategoryAdapter(listSearch,true));
+        rvRecent.setAdapter(new RecyclerCategoryAdapter(listSearch, true));
         return false;
     }
 }

@@ -6,6 +6,7 @@ package com.ahiho.apps.beeenglish.util;
 
 public class Identity {
     public static final int REQUEST_PERMISSION_CHANGE_WIFI_STATE =1;
+    public static final int REQUEST_PERMISSION_READ_WRITE_FILE =2;
 
     public static final int FUN_ID_DICTIONARY=0;
     public static final int FUN_ID_SAMPLE =1;

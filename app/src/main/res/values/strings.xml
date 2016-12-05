@@ -17,6 +17,7 @@
     <string name="err_password_short">Mật khẩu quá ngắn</string>
     <string name="err_connection_fail">Không có kết nối internet</string>
     <string name="err_permission_wifi">Bạn đã từ chối cấp quyền bật wifi</string>
+    <string name="err_permission_file">Bạn đã từ chối cấp quyền đọc ghi file</string>
     <string name="err_json_exception">Không thể đọc dữ liệu từ server</string>
     <string name="err_download_file">Tải thất bại</string>
     <string name="err_not_found_file">Không tìm thấy file</string>
@@ -24,6 +25,7 @@
     <!--success-->
     <string name="success_downloaded_file">Đã tải</string>
     <string name="not_download_file">Chưa tải</string>
+    <string name="pending_download_file">Chờ tải</string>
 
     <!--main activity-->
     <string name="forgot_password">Quên mật khẩu?</string>
@@ -54,5 +56,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
     <string name="loading">Đang tải</string>
+    <string name="download">download</string>
+    <string name="download_file">Đang tải tệp</string>
+    <string name="search_hint">Tìm kiếm</string>
 
 </resources>

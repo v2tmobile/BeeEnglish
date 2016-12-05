@@ -126,7 +126,7 @@ public class BooksActivity extends BaseActivity {
                                 BookObject book = new BookObject(jsonArray.getJSONObject(i));
                                 try{
                                     realm.beginTransaction();
-                                    realm.copyToRealm(book);
+                                    realm.copyToRealmOrUpdate(book);
                                     realm.commitTransaction();
                                 }catch (Exception e){
 
@@ -145,7 +145,7 @@ public class BooksActivity extends BaseActivity {
              bookObjects = realm.allObjects(BookObject.class);
             if(bookObjects.size()>0) {
                 rvBooks.setVisibility(View.VISIBLE);
-                rvBooks.setAdapter(new RecyclerBooksAdapter(bookObjects));
+                rvBooks.setAdapter(new RecyclerBooksAdapter(bookObjects,BooksActivity.this));
             }else{
                 tvNotFoundData.setVisibility(View.VISIBLE);
                 rvBooks.setVisibility(View.GONE);
