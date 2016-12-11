@@ -19,5 +19,6 @@
     <color name="colorWarning">#FFA726</color>
     <color name="colorError">#cc0000</color>
     <color name="colorSuccess">#4CAF50</color>
+    <color name="colorWaiting">#b8b8b8</color>
 
 </resources>

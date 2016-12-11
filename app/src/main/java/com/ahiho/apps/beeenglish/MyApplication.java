@@ -1,7 +1,6 @@
 package com.ahiho.apps.beeenglish;
 
 import android.app.Application;
-import android.support.multidex.MultiDex;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -22,7 +21,7 @@ public class MyApplication extends Application {
                 .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(realmConfiguration);
-        MultiDex.install(this);
+//        MultiDex.install(this);
 /*
 RealmConfiguration myConfig = new RealmConfiguration.Builder(context)
         .name("myrealm.realm").

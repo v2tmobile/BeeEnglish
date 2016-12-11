@@ -15,6 +15,7 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keepnames class com.somepackage.*
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses
@@ -40,7 +41,6 @@
 
 -dontoptimize
 -dontpreverify
-
 
 -keepattributes *Annotation*
 -keep public class * extends android.app.Activity
@@ -71,6 +71,9 @@
 # }
 
 #Realm
+-keep class com.ahiho.apps.beeenglish.model.** { *; }
+-keepnames public class * extends io.realm.RealmObject
+-keep @io.realm.annotations.RealmModule class *
 -keep class io.realm.annotations.RealmModule
 -keep @io.realm.annotations.RealmModule class *
 -keep class io.realm.internal.Keep
@@ -79,15 +82,50 @@
 -dontwarn io.realm.**
 #Picasso
 -dontwarn com.squareup.okhttp.**
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
+#android.support
+-keep class android.support.v4.app.** { *; }
+-keep interface android.support.v4.app.** { *; }
+-keep class android.support.v7.app.** { *; }
+-keep interface android.support.v7.app.** { *; }
+-keep class android.support.v7.widget.SearchView { *; }
+-keep public class * extends android.support.v7.widget.SearchView {
+  public <init>(android.content.Context);
+  public <init>(android.content.Context, android.util.AttributeSet);
 }
 
--keep class * implements android.os.Parcelable {
-  public static final android.os.Parcelable$Creator *;
-}
+##---------------Begin: proguard configuration for Gson  ----------
+# Gson uses generic type information stored in a class file when working with fields. Proguard
+# removes such information by default, so configure it to keep all of it.
+-keepattributes Signature
 
--keepclassmembers class **.R$* {
-  public static <fields>;
-}
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+
+# Gson specific classes
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+
+# Application classes that will be serialized/deserialized over Gson
+#-keep com.ahiho.apps.beeenglish.model.WordObject { *; }
+-dontwarn java.lang.invoke.*
+# Prevent proguard from stripping interface information from TypeAdapterFactory,
+# JsonSerializer, JsonDeserializer instances (so they can be used in @JsonAdapter)
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+##---------------End: proguard configuration for Gson  ----------
+
+# Application classes that will be serialized/deserialized over Gson
+# -keep class mypersonalclass.data.model.** { *; }#-keepclassmembers enum * {
+#    public static **[] values();
+#    public static ** valueOf(java.lang.String);
+#}
+#
+#-keep class * implements android.os.Parcelable {
+#  public static final android.os.Parcelable$Creator *;
+#}
+#
+#-keepclassmembers class **.R$* {
+#  public static <fields>;
+#}

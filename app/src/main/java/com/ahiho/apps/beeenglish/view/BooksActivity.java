@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ahiho.apps.beeenglish.R;
@@ -34,7 +35,7 @@ import io.realm.Realm;
 public class BooksActivity extends BaseActivity {
 
     private ProgressDialog mDialog;
-    private TextView tvNotFoundData;
+    private RelativeLayout rlNotFoundData;
     private RecyclerView rvBooks;
     private Realm realm;
     private List<BookObject> bookObjects;
@@ -62,7 +63,7 @@ public class BooksActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         bookObjects=new ArrayList<>();
         rvBooks = (RecyclerView) findViewById(R.id.rvBooks);
-        tvNotFoundData = (TextView) findViewById(R.id.tvNotFoundData);
+        rlNotFoundData = (RelativeLayout) findViewById(R.id.rlNotFoundData);
         rvBooks.setHasFixedSize(true);
         rvBooks.setLayoutManager(new LinearLayoutManager(BooksActivity.this, LinearLayoutManager.VERTICAL, false));
         realm = RealmController.with(this).getRealm();
@@ -147,7 +148,7 @@ public class BooksActivity extends BaseActivity {
                 rvBooks.setVisibility(View.VISIBLE);
                 rvBooks.setAdapter(new RecyclerBooksAdapter(bookObjects,BooksActivity.this));
             }else{
-                tvNotFoundData.setVisibility(View.VISIBLE);
+                rlNotFoundData.setVisibility(View.VISIBLE);
                 rvBooks.setVisibility(View.GONE);
             }
             isValid=true;

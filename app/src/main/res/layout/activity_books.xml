@@ -12,16 +12,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.ahiho.apps.beeenglish.view.BooksActivity">
 
-    <TextView
-        android:id="@+id/tvNotFoundData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/err_not_found_data"
-        android:layout_centerInParent="true"
-        android:textColor="@color/colorError"
-        android:textSize="18dp"
-        android:visibility="gone"/>
+    <include layout="@layout/not_found_data"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvBooks"

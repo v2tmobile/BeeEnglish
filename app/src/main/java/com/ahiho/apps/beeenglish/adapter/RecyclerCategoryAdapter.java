@@ -20,12 +20,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ahiho.apps.beeenglish.R;
+import com.ahiho.apps.beeenglish.model.CategoryObject;
 import com.ahiho.apps.beeenglish.model.FunctionObject;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.view.BooksActivity;
+import com.ahiho.apps.beeenglish.view.DictionaryActivity;
 import com.ahiho.apps.beeenglish.view.VocabularyActivity;
 
 import java.util.List;
+
+import io.realm.Realm;
 
 
 public class RecyclerCategoryAdapter extends RecyclerView
@@ -35,10 +39,12 @@ public class RecyclerCategoryAdapter extends RecyclerView
     private Context mContext;
     private boolean mIsRecent;
     private int screenWidth;
+    private Realm mRealm;
 
-    public RecyclerCategoryAdapter(List<FunctionObject> dataset, boolean isRecent) {
+    public RecyclerCategoryAdapter(List<FunctionObject> dataset, boolean isRecent, Realm realm) {
         mDataset = dataset;
         mIsRecent = isRecent;
+        mRealm = realm;
     }
 
     public static class DataObjectHolder extends RecyclerView.ViewHolder {
@@ -72,7 +78,7 @@ public class RecyclerCategoryAdapter extends RecyclerView
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        screenWidth = (size.x-paddingSub)/3;
+        screenWidth = (size.x - paddingSub) / 3;
         DataObjectHolder dataObjectHolder = new DataObjectHolder(view);
         return dataObjectHolder;
     }
@@ -81,6 +87,7 @@ public class RecyclerCategoryAdapter extends RecyclerView
     public void onBindViewHolder(DataObjectHolder holder, final int position) {
         final FunctionObject functionObject = mDataset.get(position);
         ViewGroup.LayoutParams layoutParams = holder.cvMain.getLayoutParams();
+        final int id = functionObject.getId();
         layoutParams.width = screenWidth;
         layoutParams.height = screenWidth;
         holder.cvMain.setLayoutParams(layoutParams);
@@ -91,18 +98,32 @@ public class RecyclerCategoryAdapter extends RecyclerView
         holder.view.setOnClickListener(new View.OnClickListener() {
                                            @Override
                                            public void onClick(View v) {
-                                               openCategory(position);
+                                               openCategory(id);
+                                               mRealm.beginTransaction();
+                                               CategoryObject object = mRealm.where(CategoryObject.class).equalTo("id", id).findFirst();
+                                               mRealm.commitTransaction();
+                                               if (object != null) {
+                                                   mRealm.beginTransaction();
+                                                   object.setCount(object.getCount() + 1);
+                                                   mRealm.commitTransaction();
+                                               } else {
+                                                   mRealm.beginTransaction();
+                                                   mRealm.copyToRealm(new CategoryObject(id, 1));
+                                                   mRealm.commitTransaction();
+                                               }
+
+
                                            }
                                        }
 
         );
     }
 
-    public void openCategory(int position){
+    public void openCategory(int id) {
         Intent intent;
-        switch (position){
+        switch (id) {
             case Identity.FUN_ID_DICTIONARY:
-                intent = new Intent(mContext, VocabularyActivity.class);
+                intent = new Intent(mContext, DictionaryActivity.class);
                 break;
             case Identity.FUN_ID_BOOK:
                 intent = new Intent(mContext, BooksActivity.class);

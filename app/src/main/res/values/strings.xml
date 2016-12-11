@@ -5,13 +5,19 @@
     <string name="bt_signup">Tạo tài khoản</string>
     <string name="bt_signin">Đăng nhập</string>
     <string name="bt_try_connection">Bật wifi </string>
+    <string name="bt_complete">Hoàn thành</string>
     <string name="bt_try_grand">Cấp lại quyền</string>
+    <string name="bt_ok">Đồng ý</string>
+    <string name="bt_cancel">Huỷ</string>
+    <string name="bt_download">Tải xuống</string>
     <!--Hint-->
+    <string name="hint_dictionary_input">Nhập văn bản</string>
     <string name="hint_email">Email</string>
     <string name="hint_email_or_username">Tên đăng nhập hoặc email</string>
     <string name="hint_password">Mật khẩu</string>
     <string name="hint_username">Tên đăng nhập</string>
     <!--error-->
+    <string name="err_title">Đã xảy ra lỗi!</string>
     <string name="err_username_invalid">Tên đăng nhập không chứa dấu cách</string>
     <string name="err_email_invalid">Email không hợp lệ</string>
     <string name="err_password_short">Mật khẩu quá ngắn</string>
@@ -20,10 +26,13 @@
     <string name="err_permission_file">Bạn đã từ chối cấp quyền đọc ghi file</string>
     <string name="err_json_exception">Không thể đọc dữ liệu từ server</string>
     <string name="err_download_file">Tải thất bại</string>
+    <string name="err_download_file_description">Sự cố xảy ra có thể do kết nối đường truyền không ổn định hoặc server đang gặp sự cố.\n\nVui lòng thử lại sau</string>
     <string name="err_not_found_file">Không tìm thấy file</string>
     <string name="err_not_found_data">Không có dữ liệu\nVui lòng mở kết nối internet</string>
     <!--success-->
+    <string name="success_title">Thành công</string>
     <string name="success_downloaded_file">Đã tải</string>
+    <string name="success_copied">Bản dịch đã được sao chép</string>
     <string name="not_download_file">Chưa tải</string>
     <string name="pending_download_file">Chờ tải</string>
 
@@ -52,12 +61,19 @@
     <string name="facebook_app_id">333946356968090</string>
     <string name="title_activity_home">Chức năng</string>
     <string name="title_activity_books">Sách tiếng anh</string>
+    <string name="title_activity_dictionary">Từ điển</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
     <string name="loading">Đang tải</string>
+    <string name="extracting">Đang giải nén</string>
+    <string name="updating">Cập nhật dữ liệu</string>
     <string name="download">download</string>
     <string name="download_file">Đang tải tệp</string>
     <string name="search_hint">Tìm kiếm</string>
+    <string name="offline_data">Từ điển ngoại tuyến</string>
+    <string name="first_download">Tải xuống lần đầu</string>
+    <string name="first_download_description">Lần đầu tải xuống sẽ mất một vài phút. Vui lòng duy trì kết nối mạng ổn định.\nNên sử dụng kết nối <b>wifi</b>  </string>
+    <string name="offline_data_description">Từ điển này được tải về để sử dụng ngay cả khi bạn đang ngoại tuyến. </string>
 
 </resources>

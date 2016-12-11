@@ -1,8 +1,14 @@
 package com.ahiho.apps.beeenglish.view;
 
 import android.Manifest;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -11,13 +17,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 
 import com.ahiho.apps.beeenglish.R;
-import com.ahiho.apps.beeenglish.my_interface.OnCallbackGrantedPermission;
 import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
 import com.ahiho.apps.beeenglish.util.MySnackBar;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.ahiho.apps.beeenglish.util.UtilString;
+import com.ahiho.apps.beeenglish.view.dialog.StatusDialog;
 
 import static com.ahiho.apps.beeenglish.util.MyConnection.noConnectInternet;
 import static com.ahiho.apps.beeenglish.util.MyConnection.turnOnWifi;
@@ -26,7 +32,7 @@ import static com.ahiho.apps.beeenglish.util.MyConnection.turnOnWifi;
  * Created by theptokim on 11/25/16.
  */
 
-public class BaseActivity extends AppCompatActivity{
+public class BaseActivity extends AppCompatActivity {
     private UtilString mUtilString;
     public MySnackBar mSnackbar;
     private UtilSharedPreferences mUtilSharedPreferences;
@@ -35,7 +41,7 @@ public class BaseActivity extends AppCompatActivity{
     private final int ACTION_SIGN_IN = 0;
     private final int ACTION_SIGN_UP = 1;
     private final int ACTION_GET_BOOKS = 2;
-    public ProgressDialog progressDialog;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -47,11 +53,36 @@ public class BaseActivity extends AppCompatActivity{
         mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(BaseActivity.this);
     }
 
+
+    public void showDialogLoading() {
+        if ((progressDialog != null) && progressDialog.isShowing())
+            progressDialog.dismiss();
+        progressDialog = ProgressDialog.show(BaseActivity.this, null,
+                getString(R.string.loading), true);
+    }
+    public void showDialogLoading(int textResource) {
+        if ((progressDialog != null) && progressDialog.isShowing())
+            progressDialog.dismiss();
+        progressDialog = ProgressDialog.show(BaseActivity.this, null,
+                getString(textResource), true);
+    }
+
     public void dismissDialog() {
         if ((progressDialog != null) && progressDialog.isShowing())
             progressDialog.dismiss();
         progressDialog = null;
     }
+
+    public void showDialogStatus(String title, String text, boolean status) {
+        Intent intent = new Intent(BaseActivity.this, StatusDialog.class);
+        intent.putExtra(Identity.EXTRA_STATUS_TITLE,title);
+        intent.putExtra(Identity.EXTRA_STATUS_TEXT,text);
+        intent.putExtra(Identity.EXTRA_STATUS_BOOLEAN,status);
+        startActivity(intent);
+
+    }
+
+
 
 
     @Override
@@ -117,7 +148,7 @@ public class BaseActivity extends AppCompatActivity{
     }
 
     public boolean grantPermissionReadWriteFile() {
-        boolean result =false;
+        boolean result = false;
         int permissionReadFile = ContextCompat.checkSelfPermission(BaseActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
         int permissionWriteFile = ContextCompat.checkSelfPermission(BaseActivity.this,
@@ -125,11 +156,12 @@ public class BaseActivity extends AppCompatActivity{
         if (permissionReadFile != PackageManager.PERMISSION_GRANTED || permissionWriteFile != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(BaseActivity.this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, Identity.REQUEST_PERMISSION_READ_WRITE_FILE);
-        }else{
-            result=true;
+        } else {
+            result = true;
         }
         return result;
     }
+
     public void showSnackBar(String text) {
         mSnackbar.showText(text);
     }
@@ -146,7 +178,6 @@ public class BaseActivity extends AppCompatActivity{
         }
         return false;
     }
-
 
 
 }

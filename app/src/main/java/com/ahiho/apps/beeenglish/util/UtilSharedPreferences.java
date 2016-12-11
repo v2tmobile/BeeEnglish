@@ -79,4 +79,12 @@ public class UtilSharedPreferences {
     public void setBookDownloadId(String key,long bookDownloadId) {
         sharedPreferences.edit().putLong(key, bookDownloadId).apply();
     }
+
+    public int getIdDictionaryDownload(String key) {
+        return sharedPreferences.getInt(key, 0);
+    }
+
+    public void setIdDictionaryDownload(String key,int id) {
+        sharedPreferences.edit().putInt(key, id).apply();
+    }
 }

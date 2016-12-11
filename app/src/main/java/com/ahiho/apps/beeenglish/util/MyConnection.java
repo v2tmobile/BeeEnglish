@@ -70,6 +70,11 @@ public class MyConnection {
         HashMap hashMap = new HashMap();
         return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
+    public ResponseData getDictionary() {
+        String url = MyConnection.BASE_URL + "dictionaries";
+        HashMap hashMap = new HashMap();
+        return performPostCallUseHeader(url, hashMap,METHOD_GET);
+    }
 
     public ResponseData signUp(String userName,String email, String password) {
         String url = MyConnection.BASE_URL + "users/register";

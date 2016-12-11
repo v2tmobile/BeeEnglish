@@ -25,6 +25,7 @@ import com.ahiho.apps.beeenglish.controller.RealmController;
 import com.ahiho.apps.beeenglish.model.BookObject;
 import com.ahiho.apps.beeenglish.my_interface.RealmRecyclerViewAdapter;
 import com.ahiho.apps.beeenglish.util.Identity;
+import com.ahiho.apps.beeenglish.util.MyDownloadManager;
 import com.ahiho.apps.beeenglish.util.MyFile;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.ahiho.apps.beeenglish.view.PDFReaderActivity;
@@ -45,8 +46,8 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
     private Context mContext;
     private Activity mActivity;
     private Realm realm;
-    private DownloadManager downloadManager;
     private UtilSharedPreferences mUtilSharedPreferences;
+    private MyDownloadManager mDownloadManager;
 
 
     public RecyclerBooksAdapter(List<BookObject> dataset, Activity activity) {
@@ -84,8 +85,8 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_book, parent, false);
         mContext = view.getContext();
+        mDownloadManager= new MyDownloadManager(mContext);
         mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(mContext);
-        downloadManager = (DownloadManager) mContext.getSystemService(DOWNLOAD_SERVICE);
         DataObjectHolder dataObjectHolder = new DataObjectHolder(view);
         realm = RealmController.getInstance().getRealm();
         return dataObjectHolder;
@@ -102,7 +103,7 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
         final String fileName = MyFile.getFileName(bookUri);
         File file = new File(Environment.getExternalStorageDirectory() + "/" + MyFile.APP_FOLDER + "/" + MyFile.BOOK_FOLDER + "/" + fileName);
         long id = mUtilSharedPreferences.getBookDownloadId(fileName);
-        int status = statusDownloading(id);
+        int status = mDownloadManager.statusDownloading(id);
         if (status == DownloadManager.STATUS_PENDING || status == DownloadManager.STATUS_RUNNING) {
             visibleDownloading(holder);
             showProgressDownloading(id, holder, position);
@@ -118,7 +119,7 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
 
                         if (holder.rlProgressDownload.getVisibility() != View.VISIBLE) {
                             visibleDownloading(holder);
-                            long currentId = DownloadData(bookUri, bookObject.getName(), destinationUri);
+                            long currentId = mDownloadManager.downloadData(bookUri, bookObject.getName(), destinationUri);
                             mUtilSharedPreferences.setBookDownloadId(fileName,currentId);
                             showProgressDownloading(currentId, holder, position);
                         }
@@ -200,48 +201,30 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
         return mDataset.size();
     }
 
-    private long DownloadData(String filePath, String bookName, Uri destinationUri) {
+//    private long DownloadData(String filePath, String bookName, Uri destinationUri) {
+//
+//        long downloadReference;
+//        Uri uri = Uri.parse(filePath);
+//        // Create request for android download manager
+//        DownloadManager.Request request = new DownloadManager.Request(uri);
+//        //Setting title of request
+//        request.setTitle(mContext.getString(R.string.app_name) + " " + mContext.getString(R.string.download));
+//
+//        //Setting description of request
+//        request.setDescription(mContext.getString(R.string.download_file) + " " + bookName);
+//
+//        //Set the local destination for the downloaded file to a path
+//        //within the application's external files directory
+////        request.setDestinationInExternalFilesDir(mContext,
+////                Environment.DIRECTORY_DOWNLOADS, fileName);
+////            Uri destinationUri = Uri.fromFile(fileDestionation);
+//        request.setDestinationUri(destinationUri);
+//        //Enqueue download and save into referenceId
+//        downloadReference = MyDownloadManager.getDownloadManager(mContext).enqueue(request);
+//        return downloadReference;
+//    }
 
-        long downloadReference;
-        Uri uri = Uri.parse(filePath);
-        // Create request for android download manager
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        //Setting title of request
-        request.setTitle(mContext.getString(R.string.app_name) + " " + mContext.getString(R.string.download));
 
-        //Setting description of request
-        request.setDescription(mContext.getString(R.string.download_file) + " " + bookName);
-
-        //Set the local destination for the downloaded file to a path
-        //within the application's external files directory
-//        request.setDestinationInExternalFilesDir(mContext,
-//                Environment.DIRECTORY_DOWNLOADS, fileName);
-//            Uri destinationUri = Uri.fromFile(fileDestionation);
-        request.setDestinationUri(destinationUri);
-        //Enqueue download and save into referenceId
-        downloadReference = downloadManager.enqueue(request);
-        return downloadReference;
-    }
-
-    private int statusDownloading(long downloadId) {
-        int status = DownloadManager.STATUS_FAILED;
-        Cursor cursor = null;
-        try {
-            DownloadManager.Query q = new DownloadManager.Query();
-            q.setFilterById(downloadId);
-            cursor = downloadManager.query(q);
-            if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                status = cursor.getInt(columnIndex);
-                cursor.close();
-            }
-        } catch (Exception e) {
-        } finally {
-            if (cursor != null)
-                cursor.close();
-            return status;
-        }
-    }
 
     private void showProgressDownloading(final long downloadId, final DataObjectHolder holder, final int position) {
 
@@ -251,7 +234,7 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
             public void run() {
                 DownloadManager.Query q = new DownloadManager.Query();
                 q.setFilterById(downloadId);
-                Cursor cursor = downloadManager.query(q);
+                Cursor cursor = mDownloadManager.getDownloadManager().query(q);
                 cursor.moveToFirst();
                 int bytes_downloaded = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                 int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
@@ -282,7 +265,7 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
                             case DownloadManager.STATUS_RUNNING:
                                 break;
                             case DownloadManager.STATUS_SUCCESSFUL:
-                                downloadSuccess(holder, position, downloadManager.getUriForDownloadedFile(downloadId));
+                                downloadSuccess(holder, position, mDownloadManager.getUriFileDownload(downloadId));
                                 myTimer.cancel();
                                 break;
                         }

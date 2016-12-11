@@ -190,7 +190,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case RC_SIGN_IN: {
-//            progressDialog = ProgressDialog.show(LoginDialog.this, null,
+//            mDialog = ProgressDialog.show(LoginDialog.this, null,
 //                    getString(R.string.loading), true);
                 GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
                 GoogleSignInAccount account = result.getSignInAccount();
@@ -321,8 +321,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(MainActivity.this, null,
-                    getString(R.string.loading), true);
+            showDialogLoading();
         }
 
         @Override
@@ -332,7 +331,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
 
         @Override
         protected void onPostExecute(ResponseData responseData) {
-            progressDialog.dismiss();
+            showDialogLoading();
             if (responseData.isResponseState()) {
 
                 postSignIn(responseData, mEmail, mPassword);

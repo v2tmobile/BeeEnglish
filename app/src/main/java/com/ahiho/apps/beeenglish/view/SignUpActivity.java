@@ -94,8 +94,8 @@ public class SignUpActivity extends BaseActivity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(SignUpActivity.this, null,
-                    getString(R.string.loading), true);
+            showDialogLoading();
+
         }
 
         @Override
@@ -105,7 +105,7 @@ public class SignUpActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(ResponseData responseData) {
-            progressDialog.dismiss();
+            dismissDialog();
             if (responseData.isResponseState()) {
                         postSignUp(responseData,mUserName,mPassword);
             } else {
