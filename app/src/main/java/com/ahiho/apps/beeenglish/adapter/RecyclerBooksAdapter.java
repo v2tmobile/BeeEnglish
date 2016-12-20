@@ -101,7 +101,7 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
         Picasso.with(mContext).load(bookObject.getIconUri()).into(holder.ivBookPicture);
         final String bookUri = bookObject.getUri();
         final String fileName = MyFile.getFileName(bookUri);
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + MyFile.APP_FOLDER + "/" + MyFile.BOOK_FOLDER + "/" + fileName);
+        File file = new File(MyFile.APP_FOLDER + "/" + MyFile.BOOK_FOLDER + "/" + fileName);
         long id = mUtilSharedPreferences.getBookDownloadId(fileName);
         int status = mDownloadManager.statusDownloading(id);
         if (status == DownloadManager.STATUS_PENDING || status == DownloadManager.STATUS_RUNNING) {

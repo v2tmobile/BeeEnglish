@@ -19,20 +19,20 @@ public class UtilString {
 
     private static String removeAccent(String str) {
 
-        str= str.toLowerCase();
-        str= str.replaceAll("\\à|\\á|\\ạ|\\ả|\\ã|\\â|\\ầ|\\ấ|\\ậ|\\ẩ|\\ẫ|\\ă|\\ằ|\\ắ|\\ặ|\\ẳ|\\ẵ","a");
-        str= str.replaceAll("\\è|\\é|\\ẹ|\\ẻ|\\ẽ|\\ê|\\ề|\\ế|\\ệ|\\ể|\\ễ","e");
-        str= str.replaceAll("\\ì|\\í|\\ị|\\ỉ|\\ĩ","i");
-        str= str.replaceAll("\\ò|\\ó|\\ọ|\\ỏ|\\õ|\\ô|\\ồ|\\ố|\\ộ|\\ổ|\\ỗ|\\ơ|\\ờ|\\ớ|\\ợ|\\ở|\\ỡ","o");
-        str= str.replaceAll("\\ù|\\ú|\\ụ|\\ủ|\\ũ|\\ư|\\ừ|\\ứ|\\ự|\\ử|\\ữ","u");
-        str= str.replaceAll("\\ỳ|\\ý|\\ỵ|\\ỷ|\\ỹ","y");
-        str= str.replace("đ","d");
+        str = str.toLowerCase();
+        str = str.replaceAll("\\à|\\á|\\ạ|\\ả|\\ã|\\â|\\ầ|\\ấ|\\ậ|\\ẩ|\\ẫ|\\ă|\\ằ|\\ắ|\\ặ|\\ẳ|\\ẵ", "a");
+        str = str.replaceAll("\\è|\\é|\\ẹ|\\ẻ|\\ẽ|\\ê|\\ề|\\ế|\\ệ|\\ể|\\ễ", "e");
+        str = str.replaceAll("\\ì|\\í|\\ị|\\ỉ|\\ĩ", "i");
+        str = str.replaceAll("\\ò|\\ó|\\ọ|\\ỏ|\\õ|\\ô|\\ồ|\\ố|\\ộ|\\ổ|\\ỗ|\\ơ|\\ờ|\\ớ|\\ợ|\\ở|\\ỡ", "o");
+        str = str.replaceAll("\\ù|\\ú|\\ụ|\\ủ|\\ũ|\\ư|\\ừ|\\ứ|\\ự|\\ử|\\ữ", "u");
+        str = str.replaceAll("\\ỳ|\\ý|\\ỵ|\\ỷ|\\ỹ", "y");
+        str = str.replace("đ", "d");
         //cắt bỏ ký tự - ở đầu và cuối chuỗi
         return str;
     }
 
-    public static boolean compareStringSearch(String s, String search){
-        if(removeAccent(s).contains(removeAccent(search)))
+    public static boolean compareStringSearch(String s, String search) {
+        if (removeAccent(s).contains(removeAccent(search)))
             return true;
         return false;
     }
@@ -69,4 +69,32 @@ public class UtilString {
         }
         return "";
     }
+
+    public  String htmlText(String input) {
+        String text = "<html><head>"
+                + "<style type=\"text/css\">body{color: #fff; background-color: #ffffffff;}"
+                + "</style></head>"
+                + "<body>"
+                + input
+                + "</body></html>";
+        return text;
+    }
+
+    public static String convertTime(long time){
+        int hour = (int) (time/3600000);
+        long remain=time%3600000;
+        int min = (int) (remain/60000);
+        remain =time%60000;
+        int second = (int) (remain/1000);
+        String result =convertNumber(hour)+":"+convertNumber(min)+":"+convertNumber(second);
+        return result;
+    }
+
+    public static String convertNumber(int number){
+        if(number>9)
+            return String.valueOf(number);
+        else
+            return "0"+number;
+    }
+
 }

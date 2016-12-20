@@ -1,20 +1,19 @@
-package com.ahiho.apps.beeenglish.model;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+package com.ahiho.apps.beeenglish.model.realm_object;
 
 import io.realm.RealmObject;
 import io.realm.annotations.Index;
-import io.realm.annotations.PrimaryKey;
 
 /**
- * Created by theptokim on 11/28/16.
+ * Created by theptokim on 12/12/16.
  */
 
-public class WordObject {
+public class WordObject extends RealmObject {
     @Index
     private String word;
     private String description;
+
+    public WordObject() {
+    }
 
     public WordObject(String word, String description) {
         this.word = word;

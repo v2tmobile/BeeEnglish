@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryTran">#aa3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryTran">#aa2196F3</color>
+    <color name="colorPrimaryDark">#1976D2</color>
+    <color name="colorAccent">#F77B55</color>
+    <color name="widgetOrange">#F77B55</color>
+    <color name="widgetYellow">#F8CD64</color>
+    <color name="widgetLightBlue">#AEECF7</color>
+    <color name="widgetDarkBlue">#92DEEB</color>
+    <color name="widgetWhite">#FFFFFF</color>
+    <!--<color name="colorPrimary">#3F51B5</color>-->
+    <!--<color name="colorPrimaryTran">#aa3F51B5</color>-->
+    <!--<color name="colorPrimaryDark">#303F9F</color>-->
+    <!--<color name="colorAccent">#FF4081</color>-->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="red_light">#ff4444</color>
@@ -20,5 +29,12 @@
     <color name="colorError">#cc0000</color>
     <color name="colorSuccess">#4CAF50</color>
     <color name="colorWaiting">#b8b8b8</color>
+    <!--List tai lieu mau-->
+    <color name="colorMainTextSample">#3F51B5</color>
+    <color name="colorMainNumberSample">#3F51B5</color>
+    <color name="colorBarFileSample">#2fa69a</color>
+    <color name="colorIconFileSample">#2fa69a</color>
+    <color name="colorTextFileSample">#2fa69a</color>
+    <color name="colorBGSampleDescription">#2fa69a</color>
 
 </resources>

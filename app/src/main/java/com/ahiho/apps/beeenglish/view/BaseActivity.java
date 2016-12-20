@@ -61,16 +61,22 @@ public class BaseActivity extends AppCompatActivity {
                 getString(R.string.loading), true);
     }
     public void showDialogLoading(int textResource) {
-        if ((progressDialog != null) && progressDialog.isShowing())
-            progressDialog.dismiss();
-        progressDialog = ProgressDialog.show(BaseActivity.this, null,
-                getString(textResource), true);
+        try {
+            if ((progressDialog != null) && progressDialog.isShowing())
+                progressDialog.dismiss();
+            progressDialog = ProgressDialog.show(BaseActivity.this, null,
+                    getString(textResource), true);
+        }catch (Exception e){
+
+        }
     }
 
     public void dismissDialog() {
-        if ((progressDialog != null) && progressDialog.isShowing())
-            progressDialog.dismiss();
-        progressDialog = null;
+        try {
+            if ((progressDialog != null) && progressDialog.isShowing())
+                progressDialog.dismiss();
+            progressDialog = null;
+        }catch (Exception e){}
     }
 
     public void showDialogStatus(String title, String text, boolean status) {

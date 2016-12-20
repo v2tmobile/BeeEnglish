@@ -25,6 +25,8 @@ import com.ahiho.apps.beeenglish.model.FunctionObject;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.view.BooksActivity;
 import com.ahiho.apps.beeenglish.view.DictionaryActivity;
+import com.ahiho.apps.beeenglish.view.GrammarActivity;
+import com.ahiho.apps.beeenglish.view.sample.SampleActivity;
 import com.ahiho.apps.beeenglish.view.VocabularyActivity;
 
 import java.util.List;
@@ -39,12 +41,11 @@ public class RecyclerCategoryAdapter extends RecyclerView
     private Context mContext;
     private boolean mIsRecent;
     private int screenWidth;
-    private Realm mRealm;
 
-    public RecyclerCategoryAdapter(List<FunctionObject> dataset, boolean isRecent, Realm realm) {
+
+    public RecyclerCategoryAdapter(List<FunctionObject> dataset, boolean isRecent) {
         mDataset = dataset;
         mIsRecent = isRecent;
-        mRealm = realm;
     }
 
     public static class DataObjectHolder extends RecyclerView.ViewHolder {
@@ -99,17 +100,26 @@ public class RecyclerCategoryAdapter extends RecyclerView
                                            @Override
                                            public void onClick(View v) {
                                                openCategory(id);
-                                               mRealm.beginTransaction();
-                                               CategoryObject object = mRealm.where(CategoryObject.class).equalTo("id", id).findFirst();
-                                               mRealm.commitTransaction();
-                                               if (object != null) {
+                                               Realm mRealm =null;
+                                               try {
+                                                   mRealm = Realm.getDefaultInstance();
                                                    mRealm.beginTransaction();
-                                                   object.setCount(object.getCount() + 1);
+                                                   try {
+                                                       CategoryObject object = mRealm.where(CategoryObject.class).equalTo("id", id).findFirst();
+                                                       if (object != null) {
+                                                           object.setCount(object.getCount() + 1);
+                                                       } else {
+                                                           mRealm.copyToRealm(new CategoryObject(id, 1));
+                                                       }
+                                                   } catch (Exception e) {
+                                                   }
                                                    mRealm.commitTransaction();
-                                               } else {
-                                                   mRealm.beginTransaction();
-                                                   mRealm.copyToRealm(new CategoryObject(id, 1));
-                                                   mRealm.commitTransaction();
+
+                                               }catch (Exception e){
+
+                                               }finally {
+                                                   if(mRealm!=null)
+                                                       mRealm.close();
                                                }
 
 
@@ -127,6 +137,15 @@ public class RecyclerCategoryAdapter extends RecyclerView
                 break;
             case Identity.FUN_ID_BOOK:
                 intent = new Intent(mContext, BooksActivity.class);
+                break;
+            case Identity.FUN_ID_SAMPLE:
+                intent = new Intent(mContext, SampleActivity.class);
+                break;
+            case Identity.FUN_ID_GRAMMAR:
+                intent = new Intent(mContext, GrammarActivity.class);
+                break;
+            case Identity.FUN_ID_VOCABULARY:
+                intent = new Intent(mContext, VocabularyActivity.class);
                 break;
             default:
                 intent = new Intent(mContext, VocabularyActivity.class);
@@ -157,6 +176,7 @@ public class RecyclerCategoryAdapter extends RecyclerView
     public int getItemCount() {
         return mDataset.size();
     }
+
 
 
 }

@@ -4,9 +4,9 @@
     <group >
 
         <item
-            android:id="@+id/nav_borrow"
-            android:icon="@drawable/ic_person_white_24dp"
-            android:title="@string/app_name" />
+            android:id="@+id/nav_active"
+            android:icon="@drawable/ic_vpn_key_white_24dp"
+            android:title="@string/nav_active" />
         <item
             android:id="@+id/nav_backup"
             android:icon="@drawable/ic_person_white_24dp"

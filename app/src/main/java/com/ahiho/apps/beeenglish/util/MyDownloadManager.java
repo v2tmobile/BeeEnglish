@@ -14,9 +14,11 @@ import com.ahiho.apps.beeenglish.R;
 public class MyDownloadManager {
     private static DownloadManager downloadManager;
     private Context mContext;
+    private UtilSharedPreferences mUtilSharedPreferences;
     public  MyDownloadManager(Context context){
         getDownloadManager(context);
         this.mContext =context;
+        mUtilSharedPreferences=UtilSharedPreferences.getInstanceSharedPreferences(mContext);
     }
     private DownloadManager getDownloadManager(Context context) {
         if (downloadManager == null)
@@ -48,7 +50,6 @@ public class MyDownloadManager {
     }
 
     public long downloadData( String filePath, String name, Uri destinationUri) {
-
         long downloadReference;
         Uri uri = Uri.parse(filePath);
         // Create request for android download manager
@@ -67,12 +68,16 @@ public class MyDownloadManager {
         request.setDestinationUri(destinationUri);
         //Enqueue download and save into referenceId
         downloadReference = downloadManager.enqueue(request);
+        mUtilSharedPreferences.setUriDownloadWithIdDownload(String.valueOf(downloadReference),destinationUri.toString());
         return downloadReference;
     }
 
     public String getStringUriFileDownload( long referenceId){
-        return MyFile.convertUri2FileUri(downloadManager.getUriForDownloadedFile(referenceId).toString());
+        return MyFile.convertUri2FileUri(mUtilSharedPreferences.getUriDownloadWithIdDownload(String.valueOf(referenceId)));
     }
+//    public String getStringUriFileDownload( long referenceId){
+//        return MyFile.convertUri2FileUri(downloadManager.getUriForDownloadedFile(referenceId).toString());
+//    }
     public Uri getUriFileDownload(long referenceId){
         return downloadManager.getUriForDownloadedFile(referenceId);
     }

@@ -10,8 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ahiho.apps.beeenglish.R;
-import com.ahiho.apps.beeenglish.model.DictionaryObject;
-import com.ahiho.apps.beeenglish.model.WordObject;
+import com.ahiho.apps.beeenglish.model.realm_object.DictionaryObject;
+import com.ahiho.apps.beeenglish.model.realm_object.WordObject;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -25,14 +25,12 @@ public class ListViewDictionarySelectAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private List<DictionaryObject> mListItem;
     private ViewHoler mHoler;
-    private List<Boolean> booleanList;
 
-    public ListViewDictionarySelectAdapter(Context context, List<DictionaryObject> lstMenu,List<Boolean> booleanList) {
+    public ListViewDictionarySelectAdapter(Context context, List<DictionaryObject> lstMenu) {
         this.mContext = context;
         mInflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.mListItem = lstMenu;
-        this.booleanList=booleanList;
     }
 
     @Override
@@ -66,8 +64,15 @@ public class ListViewDictionarySelectAdapter extends BaseAdapter {
 
         Picasso.with(mContext).load(dictionaryObject.getPicture()).into(mHoler.ivDictionaryIcon);
         mHoler.tvDictionaryName.setText(dictionaryObject.getName());
+        WordObject wordObject =null;
 
-        if(booleanList.get(position)) {
+        try{
+            wordObject =dictionaryObject.getWordObjects().first();
+        }catch (Exception e){
+
+        }
+
+        if(wordObject !=null) {
             mHoler.ivDictionaryDownload.setImageResource(R.drawable.ic_check_circle_white_24dp);
             mHoler.ivDictionaryDownload.setColorFilter(Color.parseColor("#4CAF50"));
         }else{

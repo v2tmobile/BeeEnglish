@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.my_interface.OnCallbackDownload;
 
@@ -40,10 +41,10 @@ import static android.content.Context.DOWNLOAD_SERVICE;
 
 public class MyFile {
 
-    public static final String APP_FOLDER = "bee_english";
+    public static final String APP_FOLDER = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) +"/bee_english";
     public static final String PICTURE_FOLDER = "pictures";
     public static final String BOOK_FOLDER = "books";
-    public static final String DICTIONARY_FOLDER = "dictionary";
+    public static final String DOWNLOADS_FOLDER = "downloads";
     private static final String TAG="RESPONSE_FILE";
 
     public static long getFolderSize(File f) {
@@ -234,6 +235,7 @@ public class MyFile {
             }
             zipFile.extractAll(destination);
         } catch (ZipException e) {
+            Log.e(TAG,e.getMessage());
             result=false;
         }
         return result;

@@ -13,6 +13,9 @@ public class UtilSharedPreferences {
     final String USER_DATA_KEY = "USER_DATA";
     final String ACCESS_TOKEN_KEY = "ACCESS_TOKEN";
     final String ACCESS_TOKEN_EXPIRED_KEY = "ACCESS_TOKEN_EXPIRED";
+    final String STATUS_UPDATE_FIRST="STATUS_UPDATE_FIRST";
+    final String LIST_UPDATE_FAIL="LIST_UPDATE_FAIL";
+    final String TIME_EXPIRED="TIME_EXPIRED";
     private static UtilSharedPreferences utilSharedPreferences = null;
 
     private UtilSharedPreferences(Context context) {
@@ -86,5 +89,42 @@ public class UtilSharedPreferences {
 
     public void setIdDictionaryDownload(String key,int id) {
         sharedPreferences.edit().putInt(key, id).apply();
+    }
+
+    public String getUriDownloadWithIdDownload(String key) {
+        return sharedPreferences.getString("LINK_"+key, "");
+    }
+
+    public void setUriDownloadWithIdDownload(String key,String uri) {
+        sharedPreferences.edit().putString("LINK_"+key, uri).apply();
+    }
+
+    public String getListDownloadFail() {
+        return sharedPreferences.getString(LIST_UPDATE_FAIL, "");
+    }
+
+    public void setListDownloadFail(int id) {
+        String list =  getListDownloadFail();
+        if(list.isEmpty()){
+            list =String.valueOf(id);
+        }else{
+            list+=","+id;
+        }
+        sharedPreferences.edit().putString(LIST_UPDATE_FAIL, list).apply();
+    }
+    public boolean isUpdateFirst() {
+        return sharedPreferences.getBoolean(STATUS_UPDATE_FIRST, false);
+    }
+
+    public void setUpdateFirst(boolean state) {
+        sharedPreferences.edit().putBoolean(STATUS_UPDATE_FIRST, state).apply();
+    }
+
+    public long getTrialTimeExpired() {
+        return sharedPreferences.getLong(TIME_EXPIRED, 0);
+    }
+
+    public void setTrialTimeExpired(long bookDownloadId) {
+        sharedPreferences.edit().putLong(TIME_EXPIRED, bookDownloadId).apply();
     }
 }

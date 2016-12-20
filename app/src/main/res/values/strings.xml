@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Bee English</string>
 
+    <!--menu left-->
+    <string name="nav_active">Kích hoạt app</string>
+
+
     <!--Button-->
     <string name="bt_signup">Tạo tài khoản</string>
     <string name="bt_signin">Đăng nhập</string>
@@ -9,6 +13,8 @@
     <string name="bt_try_grand">Cấp lại quyền</string>
     <string name="bt_ok">Đồng ý</string>
     <string name="bt_cancel">Huỷ</string>
+    <string name="bt_close">Đóng</string>
+    <string name="bt_pay_now">Mua ngay</string>
     <string name="bt_download">Tải xuống</string>
     <!--Hint-->
     <string name="hint_dictionary_input">Nhập văn bản</string>
@@ -28,6 +34,7 @@
     <string name="err_download_file">Tải thất bại</string>
     <string name="err_download_file_description">Sự cố xảy ra có thể do kết nối đường truyền không ổn định hoặc server đang gặp sự cố.\n\nVui lòng thử lại sau</string>
     <string name="err_not_found_file">Không tìm thấy file</string>
+    <string name="err_read_file">Đọc file không thành công</string>
     <string name="err_not_found_data">Không có dữ liệu\nVui lòng mở kết nối internet</string>
     <!--success-->
     <string name="success_title">Thành công</string>
@@ -56,12 +63,18 @@
     <string name="fun_communicate">Giao tiếp</string>
     <!--Test Vocabulary-->
     <string name="exercises">Exercises</string>
+<!--Dialog trial-->
+    <string name="trial_title">Dùng thử</string>
+    <string name="trial_content">Khi hết thời gian dùng thử bạn sẽ không thể tiếp tục sử dụng các chức năng của ứng dụng. </string>
 
     <!--Optional-->
     <string name="facebook_app_id">333946356968090</string>
     <string name="title_activity_home">Chức năng</string>
     <string name="title_activity_books">Sách tiếng anh</string>
     <string name="title_activity_dictionary">Từ điển</string>
+    <string name="title_activity_sample">Tài liệu mẫu</string>
+    <string name="title_activity_grammar">Ngữ pháp</string>
+    <string name="title_activity_vocabulary">Từ vựng</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
@@ -71,6 +84,7 @@
     <string name="download">download</string>
     <string name="download_file">Đang tải tệp</string>
     <string name="search_hint">Tìm kiếm</string>
+    <string name="share_text_download">Tải tập tin tại:</string>
     <string name="offline_data">Từ điển ngoại tuyến</string>
     <string name="first_download">Tải xuống lần đầu</string>
     <string name="first_download_description">Lần đầu tải xuống sẽ mất một vài phút. Vui lòng duy trì kết nối mạng ổn định.\nNên sử dụng kết nối <b>wifi</b>  </string>

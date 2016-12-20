@@ -1,8 +1,14 @@
 package com.ahiho.apps.beeenglish.view;
 
+import android.app.Dialog;
+import android.app.DownloadManager;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,6 +22,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,26 +32,25 @@ import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.adapter.RecyclerCategoryAdapter;
 import com.ahiho.apps.beeenglish.controller.RealmController;
 import com.ahiho.apps.beeenglish.model.CategoryObject;
-import com.ahiho.apps.beeenglish.model.DictionaryObject;
+import com.ahiho.apps.beeenglish.model.realm_object.DictionaryObject;
 import com.ahiho.apps.beeenglish.model.FunctionObject;
-import com.ahiho.apps.beeenglish.model.ResponseData;
-import com.ahiho.apps.beeenglish.model.WordObject;
-import com.ahiho.apps.beeenglish.model.WordWithTypeObject;
 import com.ahiho.apps.beeenglish.util.CircleTransform;
 import com.ahiho.apps.beeenglish.util.Identity;
-import com.ahiho.apps.beeenglish.util.MyConnection;
 import com.ahiho.apps.beeenglish.util.MyDownloadManager;
+import com.ahiho.apps.beeenglish.util.MyFile;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.ahiho.apps.beeenglish.util.UtilString;
 import com.ahiho.apps.beeenglish.view.dialog.FirstDownloadDialog;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -51,10 +58,11 @@ import io.realm.RealmResults;
 public class HomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, OnQueryTextListener {
 
     private NavigationView mNavigationView;
+    private DrawerLayout mDrawerLayout;
     private RelativeLayout llHeader;
     private ImageView ivSignOut;
     private ImageView ivAvatar;
-    private TextView tvDisplayName;
+    private TextView tvDisplayName,tvTime;
     private TextView tvEmail;
     private RecyclerView rvUsually, rvRecent;
     private List<FunctionObject> functionObjectList;
@@ -62,8 +70,9 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     private Realm mRealm;
     private boolean isLoaded = false;
     private MyDownloadManager downloadManager;
-
+    private Dialog dialogTrial;
     private List<DictionaryObject> dictionaryObjects;
+    private final int REQ_UPDATE=100;
 
 
     @Override
@@ -76,16 +85,21 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
     private void init() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.setDrawerListener(toggle);
         toggle.syncState();
         downloadManager = new MyDownloadManager(HomeActivity.this);
-        mRealm = RealmController.with(this).getRealm();
+        mRealm = RealmController.with(HomeActivity.this).getRealm();
         mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(HomeActivity.this);
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
@@ -109,20 +123,11 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         loadDataRecent();
         loadDataUser();
         isLoaded = true;
-        WordWithTypeObject wordObject=null;
-        try {
-            wordObject = mRealm.where(WordWithTypeObject.class).findFirst();
-        }catch (Exception e){
-
-        }
-        if (wordObject == null) {
-//            Toast.makeText(this, "aaaaaa", Toast.LENGTH_SHORT).show();
-//            String contentPath ="https://www.google.com.tw/images/srpr/logo4w.png";
-//            final String fileName = MyFile.getFileName(contentPath);
-//            final File file = new File(Environment.getExternalStorageDirectory() + "/" + MyFile.APP_FOLDER + "/" + MyFile.DICTIONARY_FOLDER + "/" + fileName);
-//            long currentId = downloadManager.downloadData(contentPath, "demo", Uri.fromFile(file));
-//            mUtilSharedPreferences.setIdDictionaryDownload(String.valueOf(currentId), 100);
-            new GetDictionary().execute();
+        if(!mUtilSharedPreferences.isUpdateFirst()) {
+            Intent intent = new Intent(HomeActivity.this, FirstDownloadDialog.class);
+            startActivityForResult(intent,REQ_UPDATE);
+        }else {
+            showDialogTrial();
         }
     }
 
@@ -150,6 +155,14 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode==REQ_UPDATE){
+            showDialogTrial();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void loadDataRecent() {
         functionObjectList = new ArrayList<>();
         functionObjectList.add(new FunctionObject(Identity.FUN_ID_DICTIONARY, R.drawable.ic_translate_white_48dp, getString(R.string.fun_dictionary)));
@@ -160,7 +173,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         functionObjectList.add(new FunctionObject(Identity.FUN_ID_TEST, R.drawable.ic_spellcheck_white_48dp, getString(R.string.fun_test)));
         functionObjectList.add(new FunctionObject(Identity.FUN_ID_BOOK, R.drawable.ic_book_white_48dp, getString(R.string.fun_book)));
         functionObjectList.add(new FunctionObject(Identity.FUN_ID_COMMUNICATE, R.drawable.ic_swap_horiz_white_48dp, getString(R.string.fun_communicate)));
-        rvRecent.setAdapter(new RecyclerCategoryAdapter(functionObjectList, true, mRealm));
+        rvRecent.setAdapter(new RecyclerCategoryAdapter(functionObjectList, true));
         loadDataUsuallyList();
     }
 
@@ -174,9 +187,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void loadDataUsuallyList() {
-        mRealm.beginTransaction();
         List<CategoryObject> categoryObjects = mRealm.where(CategoryObject.class).findAllSorted("count", RealmResults.SORT_ORDER_DESCENDING);
-        mRealm.commitTransaction();
         if (categoryObjects != null && categoryObjects.size() > 0) {
             List<FunctionObject> functionObjects = new ArrayList<>();
             int length = categoryObjects.size();
@@ -192,7 +203,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                     }
                 }
             }
-            rvUsually.setAdapter(new RecyclerCategoryAdapter(functionObjects, false, mRealm));
+            rvUsually.setAdapter(new RecyclerCategoryAdapter(functionObjects, false));
         }
     }
 
@@ -212,13 +223,15 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.nav_borrow:
+            case R.id.nav_active:
+                showDialogTrial();
                 break;
             case R.id.nav_backup:
                 break;
             case R.id.nav_restore:
                 break;
         }
+        mDrawerLayout.closeDrawers();
         return true;
     }
 
@@ -239,75 +252,64 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                 }
             }
         }
-        rvRecent.setAdapter(new RecyclerCategoryAdapter(listSearch, true, mRealm));
+        rvRecent.setAdapter(new RecyclerCategoryAdapter(listSearch, true));
         return false;
     }
 
-    class GetDictionary extends AsyncTask<Void, Void, ResponseData> {
+    private void showDialogTrial() {
+        if(dialogTrial!=null&&dialogTrial.isShowing())
+            return;
 
-        @Override
-        protected void onPreExecute() {
-            showDialogLoading();
+        //demo
+        if(mUtilSharedPreferences.getTrialTimeExpired()<=0){
+            mUtilSharedPreferences.setTrialTimeExpired(SystemClock.elapsedRealtime()+3600000);
         }
 
-        @Override
-        protected ResponseData doInBackground(Void... params) {
-            if (MyConnection.isOnline(HomeActivity.this)) {
-                return MyConnection.getInstanceMyConnection(HomeActivity.this).getDictionary();
-            } else {
-                return null;
+        dialogTrial = new Dialog(HomeActivity.this);
+        dialogTrial.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialogTrial.setContentView(R.layout.dialog_trial);
+        dialogTrial.setCanceledOnTouchOutside(true);
+        tvTime = (TextView) dialogTrial.findViewById(R.id.tvTime);
+        Button btOk = (Button) dialogTrial.findViewById(R.id.btOk);
+        Button btCancel = (Button) dialogTrial.findViewById(R.id.btCancel);
+        btOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomeActivity.this,ScanQRActivity.class));
+                dialogTrial.dismiss();
             }
+        });
 
-        }
+        btCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogTrial.dismiss();
+            }
+        });
 
-        @Override
-        protected void onPostExecute(ResponseData responseData) {
-            dismissDialog();
-            if (responseData != null) {
-                if (responseData.isResponseState()) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-                        if (jsonObject.getBoolean("success")) {
-                            JSONArray jsonArray = jsonObject.getJSONArray("data");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                DictionaryObject dictionaryObject = new DictionaryObject(jsonArray.getJSONObject(i));
-                                try {
-                                    mRealm.beginTransaction();
-                                    mRealm.copyToRealmOrUpdate(dictionaryObject);
-                                    mRealm.commitTransaction();
-                                } catch (Exception e) {
-
-                                }
-                            }
-                        } else {
-                            showSnackBar(R.string.err_json_exception);
-                        }
-                    } catch (JSONException e) {
-                        showSnackBar(R.string.err_json_exception);
+        final Timer myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        long time =mUtilSharedPreferences.getTrialTimeExpired()-SystemClock.elapsedRealtime();
+                        tvTime.setText(UtilString.convertTime(time));
                     }
-                } else {
-                    showSnackBar(responseData.getResponseData());
-                }
-            }
-            mRealm.beginTransaction();
-            dictionaryObjects = mRealm.allObjects(DictionaryObject.class);
-            mRealm.commitTransaction();
-            if (dictionaryObjects.size() > 0) {
-                WordWithTypeObject wordObject=null;
-                try {
-                    wordObject = mRealm.where(WordWithTypeObject.class).findFirst();
-                }catch (Exception e){
-
-                }
-                if (wordObject == null) {
-                    Intent intent = new Intent(HomeActivity.this, FirstDownloadDialog.class);
-                    startActivity(intent);
-                }
-            } else {
+                });
 
             }
-            super.onPostExecute(responseData);
-        }
+
+        }, 0, 1000);
+
+        dialogTrial.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                myTimer.cancel();
+            }
+        });
+        dialogTrial.show();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.ahiho.apps.beeenglish.model;
+package com.ahiho.apps.beeenglish.model.realm_object;
 
 
 import org.json.JSONException;
@@ -23,6 +23,7 @@ public class DictionaryObject extends RealmObject implements Serializable {
     private String content;
     private String dateCreate;
     private String dateModified;
+    private RealmList<WordObject> wordObjects = new RealmList<>();
 
     public DictionaryObject() {
     }
@@ -100,6 +101,13 @@ public class DictionaryObject extends RealmObject implements Serializable {
         this.dateModified = dateModified;
     }
 
+    public RealmList<WordObject> getWordObjects() {
+        if(wordObjects ==null)
+            wordObjects =new RealmList<>();
+        return wordObjects;
+    }
 
-
+    public void setWordObjects(RealmList<WordObject> wordObjects) {
+        this.wordObjects = wordObjects;
+    }
 }

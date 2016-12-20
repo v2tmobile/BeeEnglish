@@ -1,5 +1,6 @@
 package com.ahiho.apps.beeenglish.view.dialog;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,7 +9,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,25 +21,44 @@ import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.controller.RealmController;
-import com.ahiho.apps.beeenglish.model.DictionaryObject;
-import com.ahiho.apps.beeenglish.model.WordObject;
-import com.ahiho.apps.beeenglish.model.WordWithTypeObject;
+import com.ahiho.apps.beeenglish.model.ResponseData;
+import com.ahiho.apps.beeenglish.model.realm_object.DictionaryObject;
+import com.ahiho.apps.beeenglish.model.realm_object.GrammarObject;
+import com.ahiho.apps.beeenglish.model.realm_object.VocabularyObject;
+import com.ahiho.apps.beeenglish.model.realm_object.WordObject;
+import com.ahiho.apps.beeenglish.model.realm_object.SampleObject;
 import com.ahiho.apps.beeenglish.util.Identity;
+import com.ahiho.apps.beeenglish.util.MyConnection;
 import com.ahiho.apps.beeenglish.util.MyDownloadManager;
 import com.ahiho.apps.beeenglish.util.MyFile;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
+import com.ahiho.apps.beeenglish.util.deserialize.GrammarDeserializer;
+import com.ahiho.apps.beeenglish.util.deserialize.SampleDeserializer;
+import com.ahiho.apps.beeenglish.util.deserialize.VocabularyDeserializer;
 import com.ahiho.apps.beeenglish.view.BaseActivity;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmObject;
 
 public class FirstDownloadDialog extends BaseActivity {
 
@@ -47,14 +66,25 @@ public class FirstDownloadDialog extends BaseActivity {
     private LinearLayout llDownloadProgress, llErrorDownload;
     private ProgressBar pbProgress, pbTotal;
     private Button btOk, btCancel;
-    private int maxDownload = 1;
+    private int maxDownload = 4;
+    private int countSuccessRead = 0;
     private int currentDownload = 0;
     private long currentDownloadId = -2;
     private long lastId = -1;
     private UtilSharedPreferences mUtilSharedPreferences;
-    private Realm mRealm;
     private MyDownloadManager mDownloadManager;
     private final String TAG = "RESPONSE_FIRST";
+    private int ID_LINK_1 = 1;
+    private String LINK_1 = "https://ahiho.com/en_vi.zip";
+    private String DESCRIPTION_LINK_1 = "từ điển Anh Việt";
+    private final String LINK_2 = "https://beeenglish.mobile-backend.ahiho.com/document-template.zip";
+    private final String DESCRIPTION_LINK_2 = "tài liệu mẫu";
+    private final String LINK_3 = "https://beeenglish.mobile-backend.ahiho.com/grammar.zip";
+    private final String DESCRIPTION_LINK_3 = "ngữ pháp";
+    private final String LINK_4 = "https://beeenglish.mobile-backend.ahiho.com/vocabulary.zip";
+    private final String DESCRIPTION_LINK_4 = "từ vựng";
+    private Realm mRealm;
+    private int activityResult=Activity.RESULT_CANCELED;
 
     private BroadcastReceiver broadCastDownload = new BroadcastReceiver() {
         @Override
@@ -70,7 +100,6 @@ public class FirstDownloadDialog extends BaseActivity {
                     if (currentDownload >= maxDownload) {
                         pbProgress.setProgress(100);
                         tvProgress.setText("100%");
-                        new UnzipFile(downloadId).execute();
                         btOk.setVisibility(View.VISIBLE);
                         btOk.setText(getString(R.string.bt_complete));
                         btOk.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +115,8 @@ public class FirstDownloadDialog extends BaseActivity {
                     }
                     pbTotal.setProgress(currentDownload);
                     tvTotal.setText(currentDownload + "/" + maxDownload);
+                    new UnzipFile(downloadId, currentDownload).execute();
+
                 }
             }
         }
@@ -100,6 +131,7 @@ public class FirstDownloadDialog extends BaseActivity {
         init();
     }
 
+
     @Override
     public void onDestroy() {
         unregisterReceiver(broadCastDownload);
@@ -111,6 +143,13 @@ public class FirstDownloadDialog extends BaseActivity {
 //        super.onBackPressed();
     }
 
+    @Override
+    public void finish() {
+        Intent returnIntent = new Intent();
+        setResult(activityResult,returnIntent);
+        super.finish();
+    }
+
     public void init() {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int screenWidth = (int) (metrics.widthPixels * 0.9);
@@ -118,8 +157,6 @@ public class FirstDownloadDialog extends BaseActivity {
         mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(FirstDownloadDialog.this);
         mDownloadManager = new MyDownloadManager(FirstDownloadDialog.this);
         mRealm = RealmController.with(FirstDownloadDialog.this).getRealm();
-
-        final DictionaryObject dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
 //        Intent intent = getIntent();
 //        final DictionaryObject dictionaryObject = (DictionaryObject) intent.getSerializableExtra(Identity.EXTRA_DICTIONARY_OBJECT);
 
@@ -135,7 +172,8 @@ public class FirstDownloadDialog extends BaseActivity {
 
         pbProgress.setMax(100);
         pbTotal.setMax(maxDownload);
-        pbTotal.setProgress(currentDownload);
+        pbTotal.setProgress(0);
+        tvTotal.setText(currentDownload + "/" + maxDownload);
 
 
         btOk.setOnClickListener(new View.OnClickListener() {
@@ -145,12 +183,7 @@ public class FirstDownloadDialog extends BaseActivity {
                 llDownloadProgress.setVisibility(View.VISIBLE);
                 btOk.setVisibility(View.GONE);
                 btCancel.setVisibility(View.GONE);
-                String fileName = MyFile.getFileName(dictionaryObject.getContent());
-                File file = new File(Environment.getExternalStorageDirectory() + "/" + MyFile.APP_FOLDER + "/" + MyFile.DICTIONARY_FOLDER + "/" + fileName);
-                final Uri destinationUri = Uri.fromFile(file);
-                currentDownloadId = mDownloadManager.downloadData(dictionaryObject.getContent(), dictionaryObject.getName(), destinationUri);
-                mUtilSharedPreferences.setIdDictionaryDownload(String.valueOf(currentDownloadId), dictionaryObject.getId());
-                showProgressDownloading(currentDownloadId);
+                new GetDictionary().execute();
 //                new ReadJson("/storage/sdcard0/bee_english/dictionary/en_vi.zip",1).execute();
             }
         });
@@ -162,8 +195,42 @@ public class FirstDownloadDialog extends BaseActivity {
         });
     }
 
-    private void showProgressDownloading(final long downloadId) {
+    private void downloadLink(int position) {
+        String link = "";
+        String description = "";
+        switch (position) {
+            case 1:
+                link = LINK_2;
+                description = DESCRIPTION_LINK_2;
+                break;
+            case 2:
+                link = LINK_3;
+                description = DESCRIPTION_LINK_3;
+                break;
+            case 3:
+                link = LINK_4;
+                description = DESCRIPTION_LINK_4;
+                break;
+            default:
+                link = LINK_1;
+                description = DESCRIPTION_LINK_1;
+                break;
 
+        }
+
+        String fileName = MyFile.getFileName(link);
+        File file = new File(MyFile.APP_FOLDER + "/" + MyFile.DOWNLOADS_FOLDER + "/" + fileName);
+        final Uri destinationUri = Uri.fromFile(file);
+        if (file.exists()) {
+            file.delete();
+        }
+        currentDownloadId = mDownloadManager.downloadData(link, description, destinationUri);
+        mUtilSharedPreferences.setIdDictionaryDownload(String.valueOf(currentDownloadId), ID_LINK_1);
+        showProgressDownloading(currentDownloadId);
+
+    }
+
+    private void showProgressDownloading(final long downloadId) {
         final Timer myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
             @Override
@@ -217,22 +284,86 @@ public class FirstDownloadDialog extends BaseActivity {
         }, 0, 10);
     }
 
+    class GetDictionary extends AsyncTask<Void, Void, ResponseData> {
+
+        @Override
+        protected void onPreExecute() {
+            showDialogLoading();
+        }
+
+        @Override
+        protected ResponseData doInBackground(Void... params) {
+            return MyConnection.getInstanceMyConnection(FirstDownloadDialog.this).getDictionary();
+
+        }
+
+        @Override
+        protected void onPostExecute(ResponseData responseData) {
+            dismissDialog();
+            if (responseData != null) {
+                if (responseData.isResponseState()) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseData.getResponseData());
+                        if (jsonObject.getBoolean("success")) {
+                            JSONArray jsonArray = jsonObject.getJSONArray("data");
+                            mRealm.beginTransaction();
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                DictionaryObject dictionaryObject = new DictionaryObject(jsonArray.getJSONObject(i));
+                                try {
+                                    mRealm.copyToRealm(dictionaryObject);
+                                } catch (Exception e) {
+
+                                }
+                            }
+                            mRealm.commitTransaction();
+
+                        } else {
+                            showSnackBar(R.string.err_json_exception);
+                        }
+                    } catch (JSONException e) {
+                        showSnackBar(R.string.err_json_exception);
+                    }
+                    mRealm.beginTransaction();
+                    DictionaryObject dictionaryObject = null;
+                    try {
+                        dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
+                    } catch (Exception e) {
+
+                    }
+                    mRealm.commitTransaction();
+                    if (dictionaryObject != null) {
+                        LINK_1 = dictionaryObject.getContent();
+                        ID_LINK_1 = dictionaryObject.getId();
+                        DESCRIPTION_LINK_1 = dictionaryObject.getName();
+
+                        downloadLink(currentDownload);
+                    } else {
+                        Toast.makeText(FirstDownloadDialog.this, R.string.err_connection_fail, Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                } else {
+                    showSnackBar(responseData.getResponseData());
+                }
+            }
+            super.onPostExecute(responseData);
+        }
+    }
 
     class UnzipFile extends AsyncTask<Void, Void, Boolean> {
         private String mUri;
-        private long mId;
+        private int currentDownload;
 
-        public UnzipFile(long id) {
-            mId = id;
+        public UnzipFile(long id, int currentDownload) {
+            this.currentDownload = currentDownload;
             mUri = mDownloadManager.getStringUriFileDownload(id);
-            showDialogLoading();
+            showDialogLoading(R.string.extracting);
 
         }
 
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            String des = Environment.getExternalStorageDirectory() + "/" + MyFile.APP_FOLDER + "/" + MyFile.DICTIONARY_FOLDER + "/";
+            String des = MyFile.APP_FOLDER + "/" + MyFile.DOWNLOADS_FOLDER + "/";
             return MyFile.unzipWithLib(mUri, des, "");
 
 
@@ -244,9 +375,9 @@ public class FirstDownloadDialog extends BaseActivity {
             if (result) {
                 File file = new File(mUri);
                 file.delete();
-                new ReadJson(mUri, mUtilSharedPreferences.getIdDictionaryDownload(String.valueOf(mId))).execute();
+                new ReadJson(mUri, currentDownload).execute();
             } else {
-                Toast.makeText(FirstDownloadDialog.this, "false", Toast.LENGTH_SHORT).show();
+                Toast.makeText(FirstDownloadDialog.this, R.string.err_read_file, Toast.LENGTH_SHORT).show();
 
             }
 
@@ -254,13 +385,14 @@ public class FirstDownloadDialog extends BaseActivity {
         }
     }
 
+
     class ReadJson extends AsyncTask<Void, Long, Boolean> {
         private String mUri;
-        private int mId;
+        private int currentDownload;
 
         public ReadJson(String uri, int id) {
             mUri = uri.replace(".zip", ".json");
-            mId = id;
+            currentDownload = id;
         }
 
         @Override
@@ -273,47 +405,20 @@ public class FirstDownloadDialog extends BaseActivity {
         protected Boolean doInBackground(Void... params) {
             boolean result = true;
 //            String s = MyFile.readFileText(mUri);
-            Gson gson = new Gson();
-            JsonReader reader = null;
-            Realm realm = null;
-            try {
-                realm = Realm.getDefaultInstance();
-                reader = new JsonReader(new FileReader(mUri));
-                List<WordObject> data = gson.fromJson(reader, Identity.WORD_TYPE);// contains the whole reviews list
-                realm.beginTransaction();
-                long idAutoIncrement;
-                try {
-                    idAutoIncrement = realm.where(WordWithTypeObject.class).maximumInt("id") + 1;
-                } catch (ArrayIndexOutOfBoundsException ex) {
-                    idAutoIncrement = 0;
-                }
-                if (idAutoIncrement < 0)
-                    idAutoIncrement = 0;
-                realm.commitTransaction();
-                final int id  = realm.where(DictionaryObject.class).findFirst().getId();
 
-                realm.beginTransaction();
-                for (WordObject wordObject : data) {
-                    //add realm
-                    try {
-//                        Log.e(TAG, idAutoIncrement + "");
-                        realm.copyToRealm(new WordWithTypeObject(idAutoIncrement, wordObject, id));
-                    } catch (Exception e) {
-
-                    }
-                    idAutoIncrement++;
-                }
-                realm.commitTransaction();
-
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage() + "");
-
-                return false;
-            } finally {
-                if (realm != null) {
-                    realm.close();
-                }
+            switch (currentDownload) {
+                case 1:
+                    result = readDictionary(mUri);
+                    break;
+                case 2:
+                    result = readSample(mUri);
+                    break;
+                case 3:
+                    result = readGrammar(mUri);
+                    break;
+                case 4:
+                    result = readVocabulary(mUri);
+                    break;
             }
 
             return result;
@@ -326,11 +431,228 @@ public class FirstDownloadDialog extends BaseActivity {
             if (result) {
                 File file = new File(mUri);
                 file.delete();
+                countSuccessRead++;
+
             } else {
-                showSnackBar(R.string.err_download_file);
+                mUtilSharedPreferences.setListDownloadFail(currentDownload - 1);
+            }
+            if (currentDownload < maxDownload)
+                downloadLink(FirstDownloadDialog.this.currentDownload);
+            else {
+                activityResult=Activity.RESULT_OK;
+                mUtilSharedPreferences.setUpdateFirst(true);
             }
             super.onPostExecute(result);
         }
+    }
+
+    private boolean readVocabulary(String mUri) {
+        boolean result = true;
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(VocabularyObject.class, new VocabularyDeserializer())
+                .create();
+        JsonReader reader = null;
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            reader = new JsonReader(new FileReader(mUri));
+            List<VocabularyObject> data = gson.fromJson(reader, Identity.VOCABULARY_TYPE);// contains the whole reviews list
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(data);
+            realm.commitTransaction();
+
+
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage() + "");
+
+            return false;
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+
+        return result;
+    }
+    private boolean readGrammar(String mUri) {
+        boolean result = true;
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(GrammarObject.class, new GrammarDeserializer())
+                .create();
+        JsonReader reader = null;
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            reader = new JsonReader(new FileReader(mUri));
+            List<GrammarObject> data = gson.fromJson(reader, Identity.GRAMMAR_TYPE);// contains the whole reviews list
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(data);
+            realm.commitTransaction();
+
+
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage() + "");
+
+            return false;
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+
+        return result;
+    }
+
+
+    private boolean readSample(String mUri) {
+        boolean result = true;
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(SampleObject.class, new SampleDeserializer())
+                .create();
+        JsonReader reader = null;
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            reader = new JsonReader(new FileReader(mUri));
+            List<SampleObject> data = gson.fromJson(reader, Identity.SAMPLE_TYPE);// contains the whole reviews list
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(data);
+            realm.commitTransaction();
+
+
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage() + "");
+
+            return false;
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+
+        return result;
+    }
+
+//    private boolean readDictionary(String mUri) {
+//        boolean result = true;
+//        Gson gson = new GsonBuilder()
+//                .setExclusionStrategies(new ExclusionStrategy() {
+//                    @Override
+//                    public boolean shouldSkipField(FieldAttributes f) {
+//                        return f.getDeclaringClass().equals(RealmObject.class);
+//                    }
+//
+//                    @Override
+//                    public boolean shouldSkipClass(Class<?> clazz) {
+//                        return false;
+//                    }
+//                })
+//                .registerTypeAdapter(new TypeToken<RealmList<WordObject>>() {}.getType(), new TypeAdapter<RealmList<WordObject>>() {
+//
+//                    @Override
+//                    public void write(JsonWriter out, RealmList<WordObject> value) throws IOException {
+//                        // Ignore
+//                    }
+//
+//                    @Override
+//                    public RealmList<WordObject> read(JsonReader in) throws IOException {
+//                        RealmList<WordObject> list = new RealmList<WordObject>();
+//                        in.beginArray();
+//                        while (in.hasNext()) {
+//                            list.add(new WordObject(in.nextString(),in.nextString()));
+//                        }
+//                        in.endArray();
+//                        return list;
+//                    }
+//                })
+//                .create();
+//        JsonReader reader = null;
+//        Realm realm = null;
+//        try {
+//            realm = Realm.getDefaultInstance();
+//            reader = new JsonReader(new FileReader(mUri));
+//            List<WordObject> data = gson.fromJson(reader, Identity.WORD_TYPE);// contains the whole reviews list
+//            DictionaryObject dictionaryObject  = realm.where(DictionaryObject.class).findFirst();
+//            dictionaryObject.getWordObjects().addAll(data);
+//            realm.beginTransaction();
+//            realm.copyToRealmOrUpdate(dictionaryObject);
+//            realm.commitTransaction();
+//
+//
+//        } catch (Exception e) {
+//            Log.e(TAG,"2"+ e.getMessage() + "");
+//
+//            return false;
+//        } finally {
+//            if (realm != null) {
+//                realm.close();
+//            }
+//        }
+//        return result;
+//
+//    }
+
+    private boolean readDictionary(String mUri) {
+        boolean result = true;
+//            String s = MyFile.readFileText(mUri);
+        Gson gson = new GsonBuilder()
+                .setExclusionStrategies(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        return f.getDeclaringClass().equals(RealmObject.class);
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                })
+                .registerTypeAdapter(new TypeToken<RealmList<WordObject>>() {
+                }.getType(), new TypeAdapter<RealmList<WordObject>>() {
+
+                    @Override
+                    public void write(JsonWriter out, RealmList<WordObject> value) throws IOException {
+                        // Ignore
+                    }
+
+                    @Override
+                    public RealmList<WordObject> read(JsonReader in) throws IOException {
+                        RealmList<WordObject> list = new RealmList<WordObject>();
+                        in.beginArray();
+                        while (in.hasNext()) {
+                            list.add(new WordObject(in.nextString(), in.nextString()));
+                        }
+                        in.endArray();
+                        return list;
+                    }
+                })
+                .create();
+        JsonReader reader = null;
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            reader = new JsonReader(new FileReader(mUri));
+            List<WordObject> data = gson.fromJson(reader, Identity.WORD_TYPE);// contains the whole reviews list
+
+            DictionaryObject dictionaryObject = realm.where(DictionaryObject.class).findFirst();
+            realm.beginTransaction();
+            dictionaryObject.getWordObjects().addAll(data);
+            realm.copyToRealmOrUpdate(dictionaryObject);
+            realm.commitTransaction();
+
+
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage() + "");
+
+            return false;
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+
+        return result;
+
     }
 
 }

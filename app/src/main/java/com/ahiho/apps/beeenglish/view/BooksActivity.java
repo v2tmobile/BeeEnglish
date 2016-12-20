@@ -73,6 +73,7 @@ public class BooksActivity extends BaseActivity {
         this.registerReceiver(this.mBatInfoReceiver,
                 filter);
     }
+
     @Override
     protected void onDestroy() {
         unregisterReceiver(mBatInfoReceiver);
