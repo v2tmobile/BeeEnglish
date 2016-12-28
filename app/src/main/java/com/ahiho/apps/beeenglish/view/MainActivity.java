@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.model.ResponseData;
@@ -350,7 +351,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
                 mUtilSharedPreferences.setUserData(data.getString("user"));
                 mUtilSharedPreferences.setAccessToken(data.getString("access_token"));
                 mUtilSharedPreferences.setAccessTokenExpired(data.getLong("expires_in"));
-                showSnackBar(R.string.success_sign_in);
+                showToast(R.string.success_sign_in, Toast.LENGTH_LONG);
                 startHomeActivity();
             } else {
                 mSnackbar.showTextAction(R.string.err_sign_in, R.string.bt_try_connection, new OnCallbackSnackBar() {

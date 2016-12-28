@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:animateLayoutChanges="true"
+              android:minWidth="320dp"
+              android:orientation="vertical"
+              android:paddingBottom="16dp"
+              android:paddingTop="16dp"
+    >
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="@string/active_title"
+        android:textSize="24dp"/>
+
+    <ImageView
+        android:id="@+id/ivSuccess"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="8dp"
+        android:src="@drawable/ic_check_circle_white_48dp"
+        android:tint="@color/colorSuccess"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:text="@string/active_success"
+        android:textColor="@color/colorSuccess"
+        android:textSize="16dp"
+        android:visibility="gone"/>
+
+    <RelativeLayout
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:id="@+id/rlLoading"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="wrap_content">
+
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="56dp"
+            android:text="@string/checking"
+            android:textSize="18dp"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/llButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/btCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@drawable/button_"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="@string/bt_close"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"/>
+
+        <Button
+            android:id="@+id/btTryAgain"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/button_primary"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="@string/bt_try_again"
+            android:layout_marginRight="16dp"
+            android:textAllCaps="true"
+            android:visibility="gone"
+            android:textColor="@color/white"/>
+    </LinearLayout>
+</LinearLayout>

@@ -11,9 +11,11 @@ public class UtilSharedPreferences {
     private SharedPreferences sharedPreferences;
     //------------------------
     final String USER_DATA_KEY = "USER_DATA";
+    final String ACTIVE_DATA_KEY = "ACTIVE_DATA";
     final String ACCESS_TOKEN_KEY = "ACCESS_TOKEN";
     final String ACCESS_TOKEN_EXPIRED_KEY = "ACCESS_TOKEN_EXPIRED";
     final String STATUS_UPDATE_FIRST="STATUS_UPDATE_FIRST";
+    final String STATUS_ACTIVE="STATUS_ACTIVE";
     final String LIST_UPDATE_FAIL="LIST_UPDATE_FAIL";
     final String TIME_EXPIRED="TIME_EXPIRED";
     private static UtilSharedPreferences utilSharedPreferences = null;
@@ -64,6 +66,7 @@ public class UtilSharedPreferences {
 
     public void signOut(){
         setUserData("");
+        setActiveData("");
         setAccessToken("");
         setAccessTokenExpired(0);
     }
@@ -120,11 +123,26 @@ public class UtilSharedPreferences {
         sharedPreferences.edit().putBoolean(STATUS_UPDATE_FIRST, state).apply();
     }
 
+
     public long getTrialTimeExpired() {
         return sharedPreferences.getLong(TIME_EXPIRED, 0);
     }
 
     public void setTrialTimeExpired(long bookDownloadId) {
         sharedPreferences.edit().putLong(TIME_EXPIRED, bookDownloadId).apply();
+    }
+
+    /***
+     * Thong tin active
+     * {"application_id": "10000000","key": "10914588-2a62-490a-8541-cd361805c9c1","expired_time": "2017-03-24 19:55:37","created": "2016-12-25 02:55:37","modified": "2016-12-25 02:55:37"}
+     *
+     * @return
+     */
+    public String getActiveData() {
+        return sharedPreferences.getString(ACTIVE_DATA_KEY, "");
+    }
+
+    public void setActiveData(String data) {
+        sharedPreferences.edit().putString(ACTIVE_DATA_KEY, data).apply();
     }
 }

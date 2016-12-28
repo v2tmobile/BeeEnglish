@@ -94,7 +94,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_warning_white_24dp"
+                android:src="@drawable/ic_warning_white_48dp"
                 android:tint="@color/colorWarning"/>
             <TextView
                 android:layout_marginLeft="8dp"

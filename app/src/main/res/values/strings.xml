@@ -3,6 +3,9 @@
 
     <!--menu left-->
     <string name="nav_active">Kích hoạt app</string>
+    <!--menu-->
+    <string name="action_settings">Settings</string>
+    <string name="action_download_communication">Tải tài liệu</string>
 
 
     <!--Button-->
@@ -11,7 +14,10 @@
     <string name="bt_try_connection">Bật wifi </string>
     <string name="bt_complete">Hoàn thành</string>
     <string name="bt_try_grand">Cấp lại quyền</string>
+    <string name="bt_try_again">Thử lại</string>
     <string name="bt_ok">Đồng ý</string>
+    <string name="bt_active">Kích hoạt</string>
+    <string name="bt_buy">Mua bản quyền</string>
     <string name="bt_cancel">Huỷ</string>
     <string name="bt_close">Đóng</string>
     <string name="bt_pay_now">Mua ngay</string>
@@ -22,12 +28,14 @@
     <string name="hint_email_or_username">Tên đăng nhập hoặc email</string>
     <string name="hint_password">Mật khẩu</string>
     <string name="hint_username">Tên đăng nhập</string>
+    <string name="hint_code_active">XXX-XXXX-XXXX-XXXX</string>
     <!--error-->
     <string name="err_title">Đã xảy ra lỗi!</string>
     <string name="err_username_invalid">Tên đăng nhập không chứa dấu cách</string>
     <string name="err_email_invalid">Email không hợp lệ</string>
     <string name="err_password_short">Mật khẩu quá ngắn</string>
     <string name="err_connection_fail">Không có kết nối internet</string>
+    <string name="err_qr_not_match">Mã kích hoạt không chính xác</string>
     <string name="err_permission_wifi">Bạn đã từ chối cấp quyền bật wifi</string>
     <string name="err_permission_file">Bạn đã từ chối cấp quyền đọc ghi file</string>
     <string name="err_json_exception">Không thể đọc dữ liệu từ server</string>
@@ -35,7 +43,10 @@
     <string name="err_download_file_description">Sự cố xảy ra có thể do kết nối đường truyền không ổn định hoặc server đang gặp sự cố.\n\nVui lòng thử lại sau</string>
     <string name="err_not_found_file">Không tìm thấy file</string>
     <string name="err_read_file">Đọc file không thành công</string>
+    <string name="err_not_found_data_only">Không có dữ liệu</string>
     <string name="err_not_found_data">Không có dữ liệu\nVui lòng mở kết nối internet</string>
+    <string name="err_trial_time">Hết thời gian dùng thử</string>
+    <string name="err_trial_time_action">Hết thời gian dùng thử</string>
     <!--success-->
     <string name="success_title">Thành công</string>
     <string name="success_downloaded_file">Đã tải</string>
@@ -53,6 +64,8 @@
 
     <!--Home activity-->
     <string name="recently">Gần đây</string>
+    <string name="label_fun_document">Tài Liệu</string>
+    <string name="label_fun_task">Thực Hành</string>
     <string name="fun_dictionary">Từ điển</string>
     <string name="fun_sample">Tài liệu mẫu</string>
     <string name="fun_grammar">Ngữ pháp</string>
@@ -60,12 +73,18 @@
     <string name="fun_vocabulary">Từ vựng</string>
     <string name="fun_test">Trắc nghiệm</string>
     <string name="fun_book">Sách tiếng anh</string>
-    <string name="fun_communicate">Giao tiếp</string>
+    <string name="fun_communicate">Sổ tay giao tiếp</string>
     <!--Test Vocabulary-->
     <string name="exercises">Exercises</string>
-<!--Dialog trial-->
+    <!--Dialog trial-->
     <string name="trial_title">Dùng thử</string>
     <string name="trial_content">Khi hết thời gian dùng thử bạn sẽ không thể tiếp tục sử dụng các chức năng của ứng dụng. </string>
+    <!--Dialog active-->
+    <string name="active_title">Kích hoạt</string>
+    <string name="active_title_content">Nhập mã kích hoạt</string>
+    <string name="active_success">Ứng dụng đã được kích hoạt</string>
+    <string name="active_text_content">Bạn nhận được mã kích hoạt khi thực hiện mua bản quyền ứng dụng</string>
+    <string name="active_scan_qr">Quét mã QR</string>
 
     <!--Optional-->
     <string name="facebook_app_id">333946356968090</string>
@@ -75,10 +94,11 @@
     <string name="title_activity_sample">Tài liệu mẫu</string>
     <string name="title_activity_grammar">Ngữ pháp</string>
     <string name="title_activity_vocabulary">Từ vựng</string>
+    <string name="title_activity_communication">Sổ tay giao tiếp</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="action_settings">Settings</string>
     <string name="loading">Đang tải</string>
+    <string name="checking">Đang kiểm tra...</string>
     <string name="extracting">Đang giải nén</string>
     <string name="updating">Cập nhật dữ liệu</string>
     <string name="download">download</string>

@@ -79,15 +79,20 @@ public class UtilString {
                 + "</body></html>";
         return text;
     }
-
+//1- thoi gian may bat dau khoi dong
+    //neu thoi gian nay thay doi
     public static String convertTime(long time){
-        int hour = (int) (time/3600000);
-        long remain=time%3600000;
-        int min = (int) (remain/60000);
-        remain =time%60000;
-        int second = (int) (remain/1000);
-        String result =convertNumber(hour)+":"+convertNumber(min)+":"+convertNumber(second);
-        return result;
+        if(time>0) {
+            int hour = (int) (time / 3600000);
+            long remain = time % 3600000;
+            int min = (int) (remain / 60000);
+            remain = time % 60000;
+            int second = (int) (remain / 1000);
+            String result = convertNumber(hour) + ":" + convertNumber(min) + ":" + convertNumber(second);
+            return result;
+        }else{
+            return "00:00:00";
+        }
     }
 
     public static String convertNumber(int number){
@@ -95,6 +100,19 @@ public class UtilString {
             return String.valueOf(number);
         else
             return "0"+number;
+    }
+    public static String formatCode(String code){
+        String data= code.replace("-","");
+        String result ="";
+        if(data.length()>3){
+            result+=data.substring(0,3);
+            result+="-";
+            data=data.substring(3);
+        }else{
+            result=code;
+        }
+
+            return result;
     }
 
 }

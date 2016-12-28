@@ -9,14 +9,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.R;
+import com.ahiho.apps.beeenglish.adapter.RecyclerBooksAdapter;
+import com.ahiho.apps.beeenglish.model.BookObject;
+import com.ahiho.apps.beeenglish.model.ResponseData;
 import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
@@ -24,6 +30,10 @@ import com.ahiho.apps.beeenglish.util.MySnackBar;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.ahiho.apps.beeenglish.util.UtilString;
 import com.ahiho.apps.beeenglish.view.dialog.StatusDialog;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import static com.ahiho.apps.beeenglish.util.MyConnection.noConnectInternet;
 import static com.ahiho.apps.beeenglish.util.MyConnection.turnOnWifi;
@@ -175,6 +185,13 @@ public class BaseActivity extends AppCompatActivity {
     public void showSnackBar(int textResource) {
         mSnackbar.showText(textResource);
     }
+    public void showToast(String text,int length) {
+        Toast.makeText(this, text, length).show();
+    }
+
+    public void showToast(int textResource,int length) {
+        Toast.makeText(this, textResource, length).show();
+    }
 
     public boolean isOnline() {
         if (MyConnection.isOnline(BaseActivity.this)) {
@@ -184,6 +201,8 @@ public class BaseActivity extends AppCompatActivity {
         }
         return false;
     }
+
+
 
 
 }

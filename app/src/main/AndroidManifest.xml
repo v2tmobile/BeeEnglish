@@ -92,6 +92,7 @@
             android:name=".view.DictionaryActivity"
             android:label="@string/title_activity_dictionary">
         </activity>
+        <!--Dialog-->
         <activity
             android:name=".view.dialog.StatusDialog"
             android:theme="@style/AppTheme.DialogCloseOnTouchOutSide"/>
@@ -99,6 +100,11 @@
             android:name=".view.dialog.FirstDownloadDialog"
             android:theme="@style/AppTheme.DialogNotCloseOnTouchOutSide">
         </activity>
+        <activity
+            android:name=".view.dialog.ActiveDialog"
+            android:theme="@style/AppTheme.DialogNotCloseOnTouchOutSide">
+        </activity>
+        <!--end dialog-->
         <activity
             android:name=".view.sample.SampleActivity"
             android:label="@string/title_activity_sample"
@@ -111,7 +117,21 @@
         </activity>
         <activity android:name=".view.sample.DestailSampleActivity">
         </activity>
-        <activity android:name=".view.ScanQRActivity" android:theme="@style/FullScreen">
+        <activity
+            android:name=".view.ScanQRActivity"
+            android:theme="@style/FullScreen">
+        </activity>
+        <activity
+            android:name=".view.communication.CommunicationActivity"
+            android:label="@string/title_activity_communication">
+        </activity>
+        <activity android:name=".view.communication.CommunicationSubActivity">
+        </activity>
+        <activity android:name=".view.communication.CommunicationSubSecondActivity">
+        </activity>
+        <activity android:name=".view.communication.CommunicationDetailActivity">
+        </activity>
+        <activity android:name=".view.communication.CommunicationStoreActivity" android:label="@string/title_activity_communication">
         </activity>
     </application>
 

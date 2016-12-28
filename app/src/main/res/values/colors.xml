@@ -37,4 +37,14 @@
     <color name="colorTextFileSample">#2fa69a</color>
     <color name="colorBGSampleDescription">#2fa69a</color>
 
+    <!--Home-->
+    <color name="colorBlackNameCategory">#ff263238</color>
+    <color name="colorWhiteNameCategory">#ffffebee</color>
+
+    <!--Communication-->
+    <color name="colorMainTextCommunication">#604002</color>
+
+    <color name="colorWebLink">#1976D2</color>
+
+
 </resources>

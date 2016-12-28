@@ -73,10 +73,10 @@ public class ListViewDictionarySelectAdapter extends BaseAdapter {
         }
 
         if(wordObject !=null) {
-            mHoler.ivDictionaryDownload.setImageResource(R.drawable.ic_check_circle_white_24dp);
+            mHoler.ivDictionaryDownload.setImageResource(R.drawable.ic_check_circle_white_48dp);
             mHoler.ivDictionaryDownload.setColorFilter(Color.parseColor("#4CAF50"));
         }else{
-            mHoler.ivDictionaryDownload.setImageResource(R.drawable.ic_file_download_white_24dp);
+            mHoler.ivDictionaryDownload.setImageResource(R.drawable.ic_check_circle_white_48dp);
             mHoler.ivDictionaryDownload.setColorFilter(Color.parseColor("#b8b8b8"));
         }
         return view;

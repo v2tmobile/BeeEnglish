@@ -1,5 +1,6 @@
 package com.ahiho.apps.beeenglish.util;
 
+import com.ahiho.apps.beeenglish.model.realm_object.CommunicationObject;
 import com.ahiho.apps.beeenglish.model.realm_object.GrammarObject;
 import com.ahiho.apps.beeenglish.model.realm_object.VocabularyObject;
 import com.ahiho.apps.beeenglish.model.realm_object.WordObject;
@@ -21,6 +22,8 @@ public class Identity {
     public static final Type GRAMMAR_TYPE = new TypeToken<List<GrammarObject>>() {
     }.getType();
     public static final Type VOCABULARY_TYPE = new TypeToken<List<VocabularyObject>>() {
+    }.getType();
+    public static final Type COMMUNICATION_TYPE = new TypeToken<CommunicationObject>() {
     }.getType();
     public static final int REQUEST_PERMISSION_CHANGE_WIFI_STATE = 1;
     public static final int REQUEST_PERMISSION_READ_WRITE_FILE = 2;
@@ -50,7 +53,13 @@ public class Identity {
     public static final String EXTRA_SAMPLE_NAME = "EXTRA_SAMPLE_NAME";
     public static final String EXTRA_NEW_TEXT = "EXTRA_NEW_TEXT";
 
+    public static final String EXTRA_ID = "EXTRA_ID";
+    public static final String EXTRA_ID_SUB = "EXTRA_ID_SUB";
+    public static final String EXTRA_ID_SUB_SECOND = "EXTRA_ID_SUB_SECOND";
+    public static final String EXTRA_TITLE = "EXTRA_TITLE";
+
     public static final String DOWNLOAD_STATUS_BROADCAST = "DOWNLOAD_STATUS_BROADCAST";
     public static final String SEARCH_CHANGE_BROADCAST = "SEARCH_CHANGE_BROADCAST";
+
 
 }

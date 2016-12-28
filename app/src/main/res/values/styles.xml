@@ -7,6 +7,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowAnimationStyle">@style/CustomDialogAnimation</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
     <style name="FullScreen" parent="@style/Theme.AppCompat.Light">
@@ -16,7 +17,7 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="colorAccent">@color/white</item>
         <item name="android:windowAnimationStyle">@style/CustomDialogAnimation</item>
-
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
     </style>
 
     <style name="AppTheme.DialogCloseOnTouchOutSide" parent="Theme.AppCompat.Light.Dialog">

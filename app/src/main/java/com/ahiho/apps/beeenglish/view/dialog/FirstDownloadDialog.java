@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.controller.RealmController;
 import com.ahiho.apps.beeenglish.model.ResponseData;
+import com.ahiho.apps.beeenglish.model.realm_object.CommunicationObject;
 import com.ahiho.apps.beeenglish.model.realm_object.DictionaryObject;
 import com.ahiho.apps.beeenglish.model.realm_object.GrammarObject;
 import com.ahiho.apps.beeenglish.model.realm_object.VocabularyObject;
@@ -32,6 +33,7 @@ import com.ahiho.apps.beeenglish.util.MyConnection;
 import com.ahiho.apps.beeenglish.util.MyDownloadManager;
 import com.ahiho.apps.beeenglish.util.MyFile;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
+import com.ahiho.apps.beeenglish.util.deserialize.CommunicationDeserializer;
 import com.ahiho.apps.beeenglish.util.deserialize.GrammarDeserializer;
 import com.ahiho.apps.beeenglish.util.deserialize.SampleDeserializer;
 import com.ahiho.apps.beeenglish.util.deserialize.VocabularyDeserializer;
@@ -66,7 +68,7 @@ public class FirstDownloadDialog extends BaseActivity {
     private LinearLayout llDownloadProgress, llErrorDownload;
     private ProgressBar pbProgress, pbTotal;
     private Button btOk, btCancel;
-    private int maxDownload = 4;
+    private int maxDownload = 5;
     private int countSuccessRead = 0;
     private int currentDownload = 0;
     private long currentDownloadId = -2;
@@ -83,8 +85,10 @@ public class FirstDownloadDialog extends BaseActivity {
     private final String DESCRIPTION_LINK_3 = "ngữ pháp";
     private final String LINK_4 = "https://beeenglish.mobile-backend.ahiho.com/vocabulary.zip";
     private final String DESCRIPTION_LINK_4 = "từ vựng";
+    private final String LINK_5 = "https://beeenglish.mobile-backend.ahiho.com/communication.zip";
+    private final String DESCRIPTION_LINK_5 = "sổ tay giao tiếp";
     private Realm mRealm;
-    private int activityResult=Activity.RESULT_CANCELED;
+    private int activityResult = Activity.RESULT_CANCELED;
 
     private BroadcastReceiver broadCastDownload = new BroadcastReceiver() {
         @Override
@@ -146,7 +150,7 @@ public class FirstDownloadDialog extends BaseActivity {
     @Override
     public void finish() {
         Intent returnIntent = new Intent();
-        setResult(activityResult,returnIntent);
+        setResult(activityResult, returnIntent);
         super.finish();
     }
 
@@ -210,6 +214,10 @@ public class FirstDownloadDialog extends BaseActivity {
             case 3:
                 link = LINK_4;
                 description = DESCRIPTION_LINK_4;
+                break;
+            case 4:
+                link = LINK_5;
+                description = DESCRIPTION_LINK_5;
                 break;
             default:
                 link = LINK_1;
@@ -419,6 +427,9 @@ public class FirstDownloadDialog extends BaseActivity {
                 case 4:
                     result = readVocabulary(mUri);
                     break;
+                case 5:
+                    result = readCommunication(mUri);
+                    break;
             }
 
             return result;
@@ -439,13 +450,41 @@ public class FirstDownloadDialog extends BaseActivity {
             if (currentDownload < maxDownload)
                 downloadLink(FirstDownloadDialog.this.currentDownload);
             else {
-                activityResult=Activity.RESULT_OK;
+                activityResult = Activity.RESULT_OK;
                 mUtilSharedPreferences.setUpdateFirst(true);
             }
             super.onPostExecute(result);
         }
     }
 
+    private boolean readCommunication(String mUri) {
+        boolean result = true;
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(CommunicationObject.class, new CommunicationDeserializer())
+                .create();
+        JsonReader reader = null;
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            reader = new JsonReader(new FileReader(mUri));
+            CommunicationObject data = gson.fromJson(reader, Identity.COMMUNICATION_TYPE);// contains the whole reviews list
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(data);
+            realm.commitTransaction();
+
+
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage() + "");
+
+            return false;
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+
+        return result;
+    }
     private boolean readVocabulary(String mUri) {
         boolean result = true;
         Gson gson = new GsonBuilder()
@@ -474,6 +513,7 @@ public class FirstDownloadDialog extends BaseActivity {
 
         return result;
     }
+
     private boolean readGrammar(String mUri) {
         boolean result = true;
         Gson gson = new GsonBuilder()

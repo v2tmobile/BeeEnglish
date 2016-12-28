@@ -70,6 +70,20 @@ public class MyConnection {
         HashMap hashMap = new HashMap();
         return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
+    public ResponseData activeKey(String userName,String key,String agencyId) {
+        String url = "https://simple-payment.ahiho.com/api/keys/active";
+        HashMap hashMap = new HashMap();
+        hashMap.put("username", userName);
+        hashMap.put("key", key);
+        hashMap.put("agency_id", agencyId);
+        hashMap.put("application_id", "10000000");
+        return performPostCallUseHeader(url, hashMap,METHOD_POST);
+    }
+    public ResponseData getCommunications() {
+        String url = MyConnection.BASE_URL + "handbooks";
+        HashMap hashMap = new HashMap();
+        return performPostCallUseHeader(url, hashMap,METHOD_GET);
+    }
     public ResponseData getDictionary() {
         String url = MyConnection.BASE_URL + "dictionaries";
         HashMap hashMap = new HashMap();

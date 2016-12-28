@@ -32,6 +32,7 @@ import com.ahiho.apps.beeenglish.view.PDFReaderActivity;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,11 +49,12 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
     private Realm realm;
     private UtilSharedPreferences mUtilSharedPreferences;
     private MyDownloadManager mDownloadManager;
-
+    private List<Long> idDownload;
 
     public RecyclerBooksAdapter(List<BookObject> dataset, Activity activity) {
         mDataset = dataset;
         mActivity = activity;
+        idDownload=new ArrayList<>();
     }
 
     public static class DataObjectHolder extends RecyclerView.ViewHolder {
@@ -265,7 +267,19 @@ public class RecyclerBooksAdapter extends RealmRecyclerViewAdapter<BookObject> {
                             case DownloadManager.STATUS_RUNNING:
                                 break;
                             case DownloadManager.STATUS_SUCCESSFUL:
-                                downloadSuccess(holder, position, mDownloadManager.getUriFileDownload(downloadId));
+                                boolean isStart=true;
+                                if(idDownload.size()>0){
+                                    for(long l:idDownload){
+                                        if(l==downloadId){
+                                            isStart=false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(isStart) {
+                                    idDownload.add(downloadId);
+                                    downloadSuccess(holder, position, mDownloadManager.getUriFileDownload(downloadId));
+                                }
                                 myTimer.cancel();
                                 break;
                         }

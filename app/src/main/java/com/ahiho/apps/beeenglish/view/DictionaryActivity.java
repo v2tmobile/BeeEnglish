@@ -260,20 +260,7 @@ public class DictionaryActivity extends BaseActivity {
                         }
                     }
 
-                    mRealm.beginTransaction();
-                    WordObject object = mRealm.where(DictionaryObject.class).equalTo("id", currentDictionary).findFirst().getWordObjects().where().equalTo("word", input).findFirst();
-                    mRealm.commitTransaction();
-                    String description = "";
-                    try {
-                        description = object.getDescription();
-                    } catch (Exception e) {
-
-                    }
-                    if (object != null && !description.isEmpty()) {
-                        setTextTranslate(description);
-                    } else {
-                        setTextTranslate(input);
-                    }
+                    translate(input);
                 } else {
                     setTextTranslate("");
                 }
@@ -295,6 +282,23 @@ public class DictionaryActivity extends BaseActivity {
                 etInput.setText("");
             }
         });
+    }
+
+    private void translate(String input) {
+        mRealm.beginTransaction();
+        WordObject object = mRealm.where(DictionaryObject.class).equalTo("id", currentDictionary).findFirst().getWordObjects().where().equalTo("word", input).findFirst();
+        mRealm.commitTransaction();
+        String description = "";
+        try {
+            description = object.getDescription();
+        } catch (Exception e) {
+
+        }
+        if (object != null && !description.isEmpty()) {
+            setTextTranslate(description);
+        } else {
+            setTextTranslate(input);
+        }
     }
 
 
@@ -429,6 +433,8 @@ public class DictionaryActivity extends BaseActivity {
                             lvDictionary.setVisibility(View.GONE);
                         } else {
                             tvCurrentDictionary.setText(dictionaryObject.getName());
+                            currentDictionary=dictionaryObject.getId();
+                            translate(etInput.getText().toString());
                             lvDictionary.setVisibility(View.GONE);
                         }
                     }
