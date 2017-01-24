@@ -12,13 +12,10 @@ import android.view.MenuItem;
 
 import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.adapter.PaperGlobalAdapter;
-import com.ahiho.apps.beeenglish.adapter.RecyclerCategoryAdapter;
 import com.ahiho.apps.beeenglish.controller.RealmController;
-import com.ahiho.apps.beeenglish.model.FunctionObject;
 import com.ahiho.apps.beeenglish.model.GlobalObject;
 import com.ahiho.apps.beeenglish.model.realm_object.SampleObject;
 import com.ahiho.apps.beeenglish.util.Identity;
-import com.ahiho.apps.beeenglish.util.UtilString;
 import com.ahiho.apps.beeenglish.view.BaseActivity;
 import com.ahiho.apps.beeenglish.view.animation.VerticalFlipHorizontalTransformer;
 

@@ -6,17 +6,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true">
-    <TextView
-        android:id="@+id/tvResult"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:background="@color/black"
-        android:textColor="@color/white"
-        android:gravity="center"
-        android:layout_height="wrap_content"/>
+
     <FrameLayout
-        android:layout_above="@+id/tvResult"
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <TextView
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:text="@string/scan_qr"
+        android:background="@color/black_tran"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:textSize="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_height="wrap_content"/>
+    <ImageButton
+        android:id="@+id/btSelectImage"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:padding="16dp"
+        android:src="@drawable/ic_qr_code"
+        android:layout_alignParentRight="true"
+        android:background="?attr/selectableItemBackground"
+        android:tint="@color/colorPrimary"/>
 </RelativeLayout>

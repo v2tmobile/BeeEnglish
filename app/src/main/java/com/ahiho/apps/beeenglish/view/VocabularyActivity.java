@@ -93,7 +93,6 @@ public class VocabularyActivity extends BaseActivity {
         }catch (Exception e){
 
         }
-        Log.e("RESPONSE", vocabularyObjects.size()+"");
         if(vocabularyObjects !=null&& vocabularyObjects.size()>0) {
             List<GlobalObject> globalObjects= new ArrayList<>();
             for (VocabularyObject vocabularyObject: vocabularyObjects){

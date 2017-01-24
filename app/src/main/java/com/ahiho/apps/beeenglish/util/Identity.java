@@ -27,6 +27,7 @@ public class Identity {
     }.getType();
     public static final int REQUEST_PERMISSION_CHANGE_WIFI_STATE = 1;
     public static final int REQUEST_PERMISSION_READ_WRITE_FILE = 2;
+    public static final int REQUEST_PERMISSION_CAMERA = 3;
 
     public static final int FUN_ID_DICTIONARY = 0;
     public static final int FUN_ID_SAMPLE = 1;
@@ -60,6 +61,8 @@ public class Identity {
 
     public static final String DOWNLOAD_STATUS_BROADCAST = "DOWNLOAD_STATUS_BROADCAST";
     public static final String SEARCH_CHANGE_BROADCAST = "SEARCH_CHANGE_BROADCAST";
+    public static final String EXPIRED_BROADCAST = "EXPIRED_BROADCAST";
+    public static final String UPDATE_FIRST_BROADCAST = "UPDATE_FIRST_BROADCAST";
 
 
 }

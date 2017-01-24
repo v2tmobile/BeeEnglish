@@ -6,13 +6,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v7.widget.CardView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -32,7 +30,6 @@ import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.adapter.ListViewDictionarySelectAdapter;
-import com.ahiho.apps.beeenglish.adapter.RecyclerBooksAdapter;
 import com.ahiho.apps.beeenglish.controller.RealmController;
 import com.ahiho.apps.beeenglish.model.realm_object.DictionaryObject;
 import com.ahiho.apps.beeenglish.model.ResponseData;
@@ -61,8 +58,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -74,15 +69,16 @@ public class DictionaryActivity extends BaseActivity {
     private ImageButton btClearInput, btCopy;
     private Realm mRealm;
     private RelativeLayout rlNotFoundData;
-    private CardView cvSelectDictionary;
+    private RelativeLayout rlSelectDictionary;
     private TextView tvCurrentDictionary;
     private ListView lvDictionary;
     private UtilSharedPreferences mUtilSharedPreferences;
     private List<DictionaryObject> dictionaryObjects;
     private MyDownloadManager mDownloadManager;
-
+    private Dialog dialog;
     private int currentDictionary = -1;
     private final String TAG = "RESPONSE_DIC";
+    private     Toolbar mToolbar;
 
     private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
 
@@ -91,8 +87,9 @@ public class DictionaryActivity extends BaseActivity {
             long referenceId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             int status = mDownloadManager.statusDownloading(referenceId);
             if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                if(mUtilSharedPreferences.getIdDictionaryDownload(String.valueOf(referenceId))>0);
-                    new UnzipFile(referenceId).execute();
+                if (mUtilSharedPreferences.getIdDictionaryDownload(String.valueOf(referenceId)) > 0)
+                    ;
+                new UnzipFile(referenceId).execute();
             } else if (status == DownloadManager.STATUS_FAILED) {
                 showDialogStatus(getString(R.string.err_title), getString(R.string.err_download_file_description), false);
             }
@@ -131,11 +128,13 @@ public class DictionaryActivity extends BaseActivity {
     private void init() {
         IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         registerReceiver(downloadReceiver, filter);
+        mToolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDownloadManager = new MyDownloadManager(DictionaryActivity.this);
         mRealm = RealmController.with(DictionaryActivity.this).getRealm();
         mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(DictionaryActivity.this);
-        cvSelectDictionary = (CardView) findViewById(R.id.cvSelectDictionary);
+        rlSelectDictionary = (RelativeLayout) findViewById(R.id.rlSelectDictionary);
         tvCurrentDictionary = (TextView) findViewById(R.id.tvCurrentDictionary);
         etInput = (AutoCompleteTextView) findViewById(R.id.etInput);
         etTranslate = (WebView) findViewById(R.id.etTranslate);
@@ -161,22 +160,23 @@ public class DictionaryActivity extends BaseActivity {
 //                }
             }
         });
+        if(MyConnection.isOnline(DictionaryActivity.this))
         new GetDictionary().execute();
     }
 
     private void loadDataTranslate() {
 
-        DictionaryObject dictionaryObject=mRealm.where(DictionaryObject.class).findFirst();
+        DictionaryObject dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
         WordObject wordWithTypeObject = dictionaryObject.getWordObjects().first();
-        if (wordWithTypeObject==null) {
+        if (wordWithTypeObject == null) {
 //             DictionaryObject dictionaryObject = dictionaryObjects.get(0);
             showDialogDownload(dictionaryObject.getName(), dictionaryObject.getContent(), dictionaryObject.getId());
-        }else{
+        } else {
 //            int wordType= wordWithTypeObject.getType();
 //            for(DictionaryObject object:dictionaryObjects){
 //                if(object.getId()==wordType){
-                    tvCurrentDictionary.setText(dictionaryObject.getName());
-                    currentDictionary=dictionaryObject.getId();
+            tvCurrentDictionary.setText(dictionaryObject.getName());
+            currentDictionary = dictionaryObject.getId();
 //                    break;
 //                }
 //            }
@@ -185,11 +185,12 @@ public class DictionaryActivity extends BaseActivity {
     }
 
     private void showDialogDownload(final String name, final String contentPath, final int dictionaryId) {
+        if (dialog != null && dialog.isShowing()) return;
         final String fileName = MyFile.getFileName(contentPath);
 
-        final File file = new File( MyFile.APP_FOLDER + "/" + MyFile.DOWNLOADS_FOLDER + "/" + fileName);
+        final File file = new File(MyFile.APP_FOLDER + "/" + MyFile.DOWNLOADS_FOLDER + "/" + fileName);
 
-        final Dialog dialog = new Dialog(DictionaryActivity.this);
+        dialog = new Dialog(DictionaryActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_confirm_download);
 
@@ -218,6 +219,7 @@ public class DictionaryActivity extends BaseActivity {
     }
 
     private void setupETInput() {
+        etInput.setThreshold(1);
         etInput.setSingleLine(true);
         etInput.setLines(4);
         etInput.setHorizontallyScrolling(false);
@@ -231,13 +233,13 @@ public class DictionaryActivity extends BaseActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String input = s.toString();
                 List<String> hintList = new ArrayList<>();
-                List<WordObject> wordWithTypeObjectList=new ArrayList<WordObject>();
+                List<WordObject> wordWithTypeObjectList = new ArrayList<WordObject>();
                 mRealm.beginTransaction();
 
                 try {
                     wordWithTypeObjectList = mRealm.where(DictionaryObject.class).equalTo("id", currentDictionary).findFirst().getWordObjects().where().beginsWith("word", input).findAll();
-                }catch (Exception e){
-                    wordWithTypeObjectList=new ArrayList<WordObject>();
+                } catch (Exception e) {
+                    wordWithTypeObjectList = new ArrayList<WordObject>();
                 }
                 mRealm.commitTransaction();
 
@@ -354,6 +356,13 @@ public class DictionaryActivity extends BaseActivity {
 //    }
 
 
+//    @Override
+//    protected void onResume() {
+//        if(isProgressDialogShow)
+//            showDialogLoading(lastTextLoading);
+//        super.onResume();
+//    }
+
     class GetDictionary extends AsyncTask<Void, Void, ResponseData> {
 
         @Override
@@ -373,7 +382,7 @@ public class DictionaryActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(ResponseData responseData) {
-            dismissDialog();
+            dismissDialogLoading();
             if (responseData != null) {
                 if (responseData.isResponseState()) {
                     try {
@@ -407,7 +416,7 @@ public class DictionaryActivity extends BaseActivity {
             if (dictionaryObjects.size() > 0) {
                 loadDataTranslate();
                 lvDictionary.setAdapter(new ListViewDictionarySelectAdapter(DictionaryActivity.this, dictionaryObjects));
-                cvSelectDictionary.setOnClickListener(new View.OnClickListener() {
+                rlSelectDictionary.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (lvDictionary.getVisibility() == View.VISIBLE) {
@@ -433,7 +442,7 @@ public class DictionaryActivity extends BaseActivity {
                             lvDictionary.setVisibility(View.GONE);
                         } else {
                             tvCurrentDictionary.setText(dictionaryObject.getName());
-                            currentDictionary=dictionaryObject.getId();
+                            currentDictionary = dictionaryObject.getId();
                             translate(etInput.getText().toString());
                             lvDictionary.setVisibility(View.GONE);
                         }
@@ -470,7 +479,7 @@ public class DictionaryActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            dismissDialog();
+            dismissDialogLoading();
             if (result) {
                 File file = new File(mUri);
                 file.delete();
@@ -521,7 +530,8 @@ public class DictionaryActivity extends BaseActivity {
                             return false;
                         }
                     })
-                    .registerTypeAdapter(new TypeToken<RealmList<WordObject>>() {}.getType(), new TypeAdapter<RealmList<WordObject>>() {
+                    .registerTypeAdapter(new TypeToken<RealmList<WordObject>>() {
+                    }.getType(), new TypeAdapter<RealmList<WordObject>>() {
 
                         @Override
                         public void write(JsonWriter out, RealmList<WordObject> value) throws IOException {
@@ -533,7 +543,7 @@ public class DictionaryActivity extends BaseActivity {
                             RealmList<WordObject> list = new RealmList<WordObject>();
                             in.beginArray();
                             while (in.hasNext()) {
-                                list.add(new WordObject(in.nextString(),in.nextString()));
+                                list.add(new WordObject(in.nextString(), in.nextString()));
                             }
                             in.endArray();
                             return list;
@@ -547,7 +557,7 @@ public class DictionaryActivity extends BaseActivity {
                 reader = new JsonReader(new FileReader(mUri));
                 List<WordObject> data = gson.fromJson(reader, Identity.WORD_TYPE);// contains the whole reviews list
 
-                DictionaryObject dictionaryObject  = realm.where(DictionaryObject.class).equalTo("id",mId).findFirst();
+                DictionaryObject dictionaryObject = realm.where(DictionaryObject.class).equalTo("id", mId).findFirst();
 
                 realm.beginTransaction();
 //                for ( wordObject : data) {
@@ -581,7 +591,7 @@ public class DictionaryActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            dismissDialog();
+            dismissDialogLoading();
             try {
                 File file = new File(mUri);
                 file.delete();

@@ -1,6 +1,5 @@
 package com.ahiho.apps.beeenglish.view;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,10 +13,10 @@ import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.model.ResponseData;
-import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
+import com.ahiho.apps.beeenglish.util.UtilString;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -25,6 +24,7 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -68,8 +68,19 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
         init();
 //        startActivity(new Intent(MainActivity.this,TestVocabularyActivity.class));
 //new DownloadFile().execute();
-        if (isLogin()) {
-            startHomeActivity();
+        long accessTime = mUtilSharedPreferences.getAccessTokenExpired();
+        long time = accessTime - System.currentTimeMillis();
+        if (time <= 0) {
+            try {
+                LoginManager.getInstance().logOut();
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+            } catch (Exception e) {
+
+            }
+        } else {
+            if (isLogin()) {
+                startHomeActivity();
+            }
         }
     }
 
@@ -117,7 +128,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
         });
 
         callbackManager = CallbackManager.Factory.create();
-        btSignInFacebook.setReadPermissions("public_profile", "user_birthday");
+        btSignInFacebook.setReadPermissions("public_profile", "email");
         btSignInFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -145,13 +156,19 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
     }
 
     private boolean isLogin() {
-        boolean result = false;
-        long timeExpired = UtilSharedPreferences.getInstanceSharedPreferences(MainActivity.this).getAccessTokenExpired();
-        long currentTime = System.currentTimeMillis() / 1000;
-        if ((timeExpired - currentTime) > 0) {
-            result = true;
-        }
-        return result;
+//        if(MyConnection.isOnline(MainActivity.this)) {
+//            boolean result = false;
+//            long timeExpired = UtilSharedPreferences.getInstanceSharedPreferences(MainActivity.this).getAccessTokenExpired();
+//            long currentTime = System.currentTimeMillis() / 1000;
+//            if ((timeExpired - currentTime) > 0) {
+//                result = true;
+//            }
+//            return result;
+//        }else{
+//            return true;
+//        }
+        String userData = UtilSharedPreferences.getInstanceSharedPreferences(MainActivity.this).getUserData();
+        return !userData.isEmpty();
     }
 
     private void configSignInGoogle() {
@@ -189,55 +206,59 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case RC_SIGN_IN: {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case RC_SIGN_IN: {
 //            mDialog = ProgressDialog.show(LoginDialog.this, null,
 //                    getString(R.string.loading), true);
-                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-                GoogleSignInAccount account = result.getSignInAccount();
-                handleSignInGoogle(result);
+                    GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                    GoogleSignInAccount account = result.getSignInAccount();
+                    handleSignInGoogle(result);
+                }
+                break;
+                case RC_SIGN_UP:
+                    String email = data.getStringExtra(Identity.EXTRA_USER_NAME);
+                    String password = data.getStringExtra(Identity.EXTRA_PASSWORD);
+                    etEmail.setText(email);
+                    etPassword.setText(password);
+                    signIn();
+                    break;
+                default:
+                    if (callbackManager != null)
+                        callbackManager.onActivityResult(requestCode, resultCode, data);
+                    // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+                    break;
             }
-            break;
-            case RC_SIGN_UP:
-                String email = data.getStringExtra(Identity.EXTRA_USER_NAME);
-                String password = data.getStringExtra(Identity.EXTRA_PASSWORD);
-                etEmail.setText(email);
-                etPassword.setText(password);
-                signIn();
-                break;
-            default:
-                if (callbackManager != null)
-                    callbackManager.onActivityResult(requestCode, resultCode, data);
-                // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-                break;
         }
     }
 
     private void handleSignInGoogle(GoogleSignInResult result) {
         if (result.isSuccess()) {
-            String birthday = "";
-            int sex = 0;
-            try {
-                Person person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
-                // Signed in successfully, show authenticated UI.
-                sex = person.getGender();
-                if (person.getBirthday() != null)
-                    birthday = person.getBirthday();
-            } catch (Exception ex) {
-
-            }
-            GoogleSignInAccount acct = result.getSignInAccount();
-            String id = acct.getId();
-            String email = acct.getEmail();
-            String name = acct.getDisplayName();
-            String linkAvatar = "";
-            try {
-                Uri uri = acct.getPhotoUrl();
-//                String is = acct.getIdToken();
-                if (uri != null)
-                    linkAvatar = uri.toString();
-            } catch (Exception ex) {
-            }
+            String token = result.getSignInAccount().getIdToken();
+            new SignInGmail(token).execute();
+//            String birthday = "";
+//            int sex = 0;
+//            try {
+//                Person person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+//                // Signed in successfully, show authenticated UI.
+//                sex = person.getGender();
+//                if (person.getBirthday() != null)
+//                    birthday = person.getBirthday();
+//            } catch (Exception ex) {
+//
+//            }
+//            GoogleSignInAccount acct = result.getSignInAccount();
+//            String id = acct.getId();
+//            String email = acct.getEmail();
+//            String name = acct.getDisplayName();
+//            String linkAvatar = "";
+//            try {
+//                Uri uri = acct.getPhotoUrl();
+////                String is = acct.getIdToken();
+//                if (uri != null)
+//                    linkAvatar = uri.toString();
+//            } catch (Exception ex) {
+//            }
 
 //            new SignUpTask(1,id,name,email).execute();
 //            String info = "ID: " + id + "\nEmail: " + email + "\nName: " + name + " - Gender: " + sex + "\nBirthday: " + birthday;
@@ -249,45 +270,47 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
     }
 
     private void handleSignInFacebook(AccessToken accessToken, final String socialId) {
-        GraphRequest request = GraphRequest.newMeRequest(
-                accessToken,
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(
-                            JSONObject object,
-                            GraphResponse response) {
-                        // Application code
-                        String name = "";
-                        String link = "";
-                        String gender = "";
-                        try {
-                            name = object.getString("name");
-                            link = "http://graph.facebook.com/" + socialId + "/picture?width=100&height=100";
-                            gender = object.getString("gender");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        String birthday = "";
-
-                        try {
-                            birthday = formatDateFacebook(object.getString("birthday"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        int sex = 0;
-                        if (gender.equals("female") || gender.equals("nữ")) {
-                            sex = 1;
-                        }
-                        String socialIdNew = socialId;
-
-                    }
-                });
-
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,link,gender,birthday,age_range,picture.width(150).height(150)");
-        request.setParameters(parameters);
-        request.executeAsync();
+        String tokenKey = accessToken.getToken();
+        new SignInFacebook(tokenKey).execute();
+//        GraphRequest request = GraphRequest.newMeRequest(
+//                accessToken,
+//                new GraphRequest.GraphJSONObjectCallback() {
+//                    @Override
+//                    public void onCompleted(
+//                            JSONObject object,
+//                            GraphResponse response) {
+//                        // Application code
+//                        String name = "";
+//                        String link = "";
+//                        String gender = "";
+//                        try {
+//                            name = object.getString("name");
+//                            link = "http://graph.facebook.com/" + socialId + "/picture?width=100&height=100";
+//                            gender = object.getString("gender");
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                        String birthday = "";
+//
+//                        try {
+//                            birthday = formatDateFacebook(object.getString("birthday"));
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        int sex = 0;
+//                        if (gender.equals("female") || gender.equals("nữ")) {
+//                            sex = 1;
+//                        }
+//                        String socialIdNew = socialId;
+//
+//                    }
+//                });
+//
+//        Bundle parameters = new Bundle();
+//        parameters.putString("fields", "id,name,link,gender,birthday,age_range,picture.width(150).height(150)");
+//        request.setParameters(parameters);
+//        request.executeAsync();
     }
 
     private String formatDateFacebook(String birthday) {
@@ -332,10 +355,10 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
 
         @Override
         protected void onPostExecute(ResponseData responseData) {
-            showDialogLoading();
+            dismissDialogLoading();
             if (responseData.isResponseState()) {
 
-                postSignIn(responseData, mEmail, mPassword);
+                postSignIn(responseData);
             } else {
                 showSnackBar(responseData.getResponseData());
             }
@@ -343,25 +366,106 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
         }
     }
 
-    private void postSignIn(ResponseData responseData, final String email, final String password) {
-        try {
-            JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-            if (jsonObject.getBoolean("success")) {
-                JSONObject data = jsonObject.getJSONObject("data");
-                mUtilSharedPreferences.setUserData(data.getString("user"));
-                mUtilSharedPreferences.setAccessToken(data.getString("access_token"));
-                mUtilSharedPreferences.setAccessTokenExpired(data.getLong("expires_in"));
-                showToast(R.string.success_sign_in, Toast.LENGTH_LONG);
-                startHomeActivity();
+    class SignInFacebook extends AsyncTask<Void, Void, ResponseData> {
+
+        private String accessToken;
+
+        public SignInFacebook(String accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showDialogLoading();
+        }
+
+        @Override
+        protected ResponseData doInBackground(Void... params) {
+            return MyConnection.getInstanceMyConnection(MainActivity.this).signInFacebook(accessToken);
+        }
+
+        @Override
+        protected void onPostExecute(ResponseData responseData) {
+            dismissDialogLoading();
+            if (responseData.isResponseState()) {
+
+                postSignIn(responseData);
             } else {
-                mSnackbar.showTextAction(R.string.err_sign_in, R.string.bt_try_connection, new OnCallbackSnackBar() {
-                    @Override
-                    public void onAction() {
-                        new SignIn(email, password).execute();
+                LoginManager.getInstance().logOut();
+                showSnackBar(responseData.getResponseData());
+            }
+            super.onPostExecute(responseData);
+        }
+    }
+
+    class SignInGmail extends AsyncTask<Void, Void, ResponseData> {
+
+        private String accessToken;
+
+        public SignInGmail(String accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showDialogLoading();
+        }
+
+        @Override
+        protected ResponseData doInBackground(Void... params) {
+            return MyConnection.getInstanceMyConnection(MainActivity.this).signInGmail(accessToken);
+        }
+
+        @Override
+        protected void onPostExecute(ResponseData responseData) {
+            dismissDialogLoading();
+            if (responseData.isResponseState()) {
+                postSignIn(responseData);
+            } else {
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                showSnackBar(responseData.getResponseData());
+            }
+            super.onPostExecute(responseData);
+        }
+    }
+
+    private void postSignIn(ResponseData responseData) {
+        try {
+            if (responseData.isResponseState()) {
+                JSONObject jsonObject = new JSONObject(responseData.getResponseData());
+                if (jsonObject.getBoolean("success")) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    mUtilSharedPreferences.setUserData(data.getString("user"));
+                    mUtilSharedPreferences.setAccessToken(data.getString("access_token"));
+                    mUtilSharedPreferences.setAccessTokenExpired(data.getLong("expired_in"));
+                    mUtilSharedPreferences.setTrialTimeExpired(data.getJSONObject("user").getString("expired"));
+                    showToast(R.string.success_sign_in, Toast.LENGTH_LONG);
+                    startHomeActivity();
+                } else {
+                    try {
+                        LoginManager.getInstance().logOut();
+                        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                    } catch (Exception e) {
+
                     }
-                });
+                    showSnackBar(responseData.getResponseData());
+                }
+            } else {
+                try {
+                    LoginManager.getInstance().logOut();
+                    Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                } catch (Exception e) {
+
+                }
+                showSnackBar(responseData.getResponseData());
             }
         } catch (JSONException e) {
+            try {
+                LoginManager.getInstance().logOut();
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+            } catch (Exception ex) {
+
+            }
             showSnackBar(R.string.err_json_exception);
         }
     }

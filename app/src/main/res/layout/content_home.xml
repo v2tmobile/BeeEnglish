@@ -1,344 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="vertical"
-    android:id="@+id/scrollView"
-    android:paddingTop="56dp">
+    android:background="@color/colorHomeBG"
+    android:scrollbars="none"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <GridLayout
-            android:minWidth="25px"
-            android:minHeight="25px"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvUsually"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/gridLayout"
-            android:columnCount="2"
-            android:rowCount="6">
-            <RelativeLayout
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_row="0"
-                android:layout_column="0"
-                android:layout_columnSpan="2"
-                android:background="@color/widgetOrange"
-                android:id="@+id/dictionary"
-                android:layout_gravity="fill_horizontal">
-                <ImageView
-                    android:src="@drawable/ic_bee_english"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageView1"
-                    android:background="@android:color/transparent"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="80dp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_dictionary"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorWhiteNameCategory"
-                    android:textAllCaps="true"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="80dp"
-                    android:textSize="34dp" />
-                <ImageView
-                    android:src="@drawable/ic_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageSearchIcon"
-                    android:background="@android:color/transparent"
-                    android:layout_marginRight="130dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="60dp" />
-                <Button
-                    android:id="@+id/btDictionary"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:background="@color/widgetYellow"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:gravity="center"
-                android:layout_gravity="fill_horizontal"
-                android:id="@+id/document"
-                android:layout_row="1"
-                android:layout_column="0"
-                android:layout_columnWeight="1">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_fun_document"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorWhiteNameCategory"
-                    android:textAllCaps="true"
-                    android:layout_centerInParent="true" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:background="@color/widgetYellow"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_column="1"
-                android:gravity="center"
-                android:layout_gravity="fill_horizontal"
-                android:id="@+id/task"
-                android:layout_row="1"
-                android:layout_columnWeight="1">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_fun_task"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorWhiteNameCategory"
-                    android:textAllCaps="true"
-                    android:layout_centerInParent="true" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:background="@color/widgetLightBlue"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_row="2"
-                android:layout_column="0"
-                android:gravity="center"
-                android:id="@+id/book"
-                android:layout_gravity="fill_horizontal"
-                android:layout_columnWeight="1">
-                <ImageView
-                    android:src="@drawable/ic_dashboard_books"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageViewBook"
-                    android:background="@android:color/transparent"
-                    android:layout_centerInParent="true" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_book"
-                    android:textColor="@color/colorBlackNameCategory"
-                    android:id="@+id/textViewBook"
-                    android:layout_below="@+id/imageViewBook"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-                <Button
-                    android:id="@+id/btBook"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:background="@color/widgetDarkBlue"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_row="2"
-                android:layout_column="1"
-                android:gravity="center"
-                android:id="@+id/Test"
-                android:layout_gravity="fill_horizontal"
-                android:layout_columnWeight="1">
-                <ImageView
-                    android:src="@drawable/ic_dashboard_test"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageViewTest"
-                    android:background="@android:color/transparent"
-                    android:layout_centerInParent="true" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_test"
-                    android:textColor="@color/colorBlackNameCategory"
-                    android:id="@+id/textViewTest"
-                    android:layout_below="@+id/imageViewTest"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-                <Button
-                    android:id="@+id/btTest"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:background="@color/widgetWhite"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_row="3"
-                android:layout_column="0"
-                android:gravity="center"
-                android:id="@+id/document_template"
-                android:layout_gravity="fill_horizontal"
-                android:layout_columnWeight="1">
-                <ImageView
-                    android:src="@drawable/ic_dashboard_sample"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageViewSample"
-                    android:background="@android:color/transparent"
-                    android:layout_centerInParent="true" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_sample"
-                    android:textColor="@color/colorBlackNameCategory"
-                    android:id="@+id/textViewSample"
-                    android:layout_below="@+id/imageViewSample"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-                <Button
-                    android:id="@+id/btSample"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:background="@color/widgetYellow"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_row="3"
-                android:layout_column="1"
-                android:gravity="center"
-                android:id="@+id/skill"
-                android:layout_columnWeight="1"
-                android:layout_gravity="fill_horizontal">
-                <ImageView
-                    android:src="@drawable/ic_dashboard_skill"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageViewSkill"
-                    android:background="@android:color/transparent"
-                    android:layout_centerInParent="true" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_skill"
-                    android:textColor="@color/colorBlackNameCategory"
-                    android:id="@+id/textViewSkill"
-                    android:layout_below="@+id/imageViewSkill"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-                <Button
-                    android:id="@+id/btSkill"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:background="@color/widgetLightBlue"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_row="4"
-                android:layout_column="0"
-                android:gravity="center"
-                android:id="@+id/grammar"
-                android:layout_columnWeight="1"
-                android:layout_gravity="fill_horizontal">
-                <ImageView
-                    android:src="@drawable/ic_dashboard_grammar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageViewGrammar"
-                    android:background="@android:color/transparent"
-                    android:layout_centerInParent="true" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_grammar"
-                    android:textColor="@color/colorBlackNameCategory"
-                    android:id="@+id/textViewGrammar"
-                    android:layout_below="@+id/imageViewGrammar"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-                <Button
-                    android:id="@+id/btGrammar"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:background="@color/widgetDarkBlue"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_row="4"
-                android:layout_column="1"
-                android:gravity="center"
-                android:id="@+id/Communicate"
-                android:layout_columnWeight="1"
-                android:layout_gravity="fill_horizontal">
-                <ImageView
-                    android:src="@drawable/ic_dashboard_communicate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageViewCommunicate"
-                    android:background="@android:color/transparent"
-                    android:layout_centerInParent="true" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_communicate"
-                    android:textColor="@color/colorBlackNameCategory"
-                    android:id="@+id/textViewCommunicate"
-                    android:layout_below="@+id/imageViewCommunicate"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-                <Button
-                    android:id="@+id/btCommunicate"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-            <RelativeLayout
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="0dp"
-                android:layout_height="160dp"
-                android:layout_row="5"
-                android:layout_column="0"
-                android:layout_columnSpan="2"
-                android:background="@color/widgetYellow"
-                android:id="@+id/vocabulary"
-                android:layout_gravity="fill_horizontal">
-                <ImageView
-                    android:src="@drawable/ic_dashboard_vocabulary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/imageViewVocabulary"
-                    android:background="@android:color/transparent"
-                    android:layout_centerInParent="true" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/fun_vocabulary"
-                    android:textColor="@color/colorBlackNameCategory"
-                    android:id="@+id/textViewVocabulary"
-                    android:layout_below="@+id/imageViewVocabulary"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="10dp" />
-                <Button
-                    android:id="@+id/btVocabulary"
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    android:background="?attr/selectableItemBackground" />
-            </RelativeLayout>
-        </GridLayout>
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:background="@color/colorHomeRecent"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+            <ImageView
+                android:id="@+id/ivUp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentRight="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_keyboard_arrow_up_white_24dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_toLeftOf="@+id/ivUp"
+                android:gravity="center_vertical"
+                android:text="@string/recently"
+                android:textColor="@color/white"
+                android:textSize="24dp"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvRecent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivUp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"/>
+        </RelativeLayout>
+    </LinearLayout>
 </ScrollView>

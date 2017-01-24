@@ -3,6 +3,9 @@ package com.ahiho.apps.beeenglish.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by theptokim on 9/28/16.
  */
@@ -67,6 +70,7 @@ public class UtilSharedPreferences {
     public void signOut(){
         setUserData("");
         setActiveData("");
+        setTrialTimeExpired(0);
         setAccessToken("");
         setAccessTokenExpired(0);
     }
@@ -128,8 +132,12 @@ public class UtilSharedPreferences {
         return sharedPreferences.getLong(TIME_EXPIRED, 0);
     }
 
-    public void setTrialTimeExpired(long bookDownloadId) {
-        sharedPreferences.edit().putLong(TIME_EXPIRED, bookDownloadId).apply();
+    public void setTrialTimeExpired(long time) {
+        sharedPreferences.edit().putLong(TIME_EXPIRED, time).apply();
+    }
+    public void setTrialTimeExpired(String dateTime) {
+        long time = UtilString.convertString2Date(dateTime);
+        sharedPreferences.edit().putLong(TIME_EXPIRED, time).apply();
     }
 
     /***
@@ -142,7 +150,43 @@ public class UtilSharedPreferences {
         return sharedPreferences.getString(ACTIVE_DATA_KEY, "");
     }
 
+    /***
+     * Neu da active va thoi gian het han con >3 ngay
+     * @return
+     */
+    public boolean isActiveValid() {
+        String activeInfo = getActiveData();
+        if (!activeInfo.isEmpty()) {
+            long time = 0;
+            //start
+            try {
+                time = UtilString.convertString2Date(new JSONObject(activeInfo).getString("expired_time"))-System.currentTimeMillis();
+            } catch (JSONException e) {
+            }
+            time = time - 3600000 * 3;
+            if (time < 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }else {
+            return false;
+        }
+    }
+
     public void setActiveData(String data) {
         sharedPreferences.edit().putString(ACTIVE_DATA_KEY, data).apply();
+        if(data.isEmpty()){
+            setTrialTimeExpired(0);
+
+        }else {
+            try {
+                JSONObject jsonObjectActive = new JSONObject(data);
+                setTrialTimeExpired(jsonObjectActive.getString("expired"));
+            } catch (JSONException e) {
+
+            }
+        }
+
     }
 }

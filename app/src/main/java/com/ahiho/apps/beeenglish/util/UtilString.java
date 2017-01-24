@@ -10,12 +10,16 @@ import android.widget.Toast;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.Normalizer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 
 /**
  * Created by theptokim on 9/28/16.
  */
 public class UtilString {
+
+    private static final String FORMAT_DEFAULT_FULL = "yyyy-MM-dd HH:mm:ss.SSS";
 
     private static String removeAccent(String str) {
 
@@ -82,17 +86,27 @@ public class UtilString {
 //1- thoi gian may bat dau khoi dong
     //neu thoi gian nay thay doi
     public static String convertTime(long time){
+        String result="00:00:00";
         if(time>0) {
-            int hour = (int) (time / 3600000);
-            long remain = time % 3600000;
-            int min = (int) (remain / 60000);
-            remain = time % 60000;
-            int second = (int) (remain / 1000);
-            String result = convertNumber(hour) + ":" + convertNumber(min) + ":" + convertNumber(second);
-            return result;
-        }else{
-            return "00:00:00";
+            if(time>86400000){
+                int day = (int) (time/86400000);
+                if(day>=365){
+                    day=day/365;
+                    result = day + " năm";
+                }else {
+                    result = day + " ngày";
+                }
+            }else {
+                int hour = (int) (time / 3600000);
+                long remain = time % 3600000;
+                int min = (int) (remain / 60000);
+                remain = time % 60000;
+                int second = (int) (remain / 1000);
+                 result = convertNumber(hour) + ":" + convertNumber(min) + ":" + convertNumber(second);
+            }
         }
+        return result;
+
     }
 
     public static String convertNumber(int number){
@@ -113,6 +127,16 @@ public class UtilString {
         }
 
             return result;
+    }
+
+    public static long convertString2Date(String strDate){
+        long time =0;
+        strDate=strDate.replace ( "T" , " " ).replace( "Z" , "");
+        try {
+            time= new SimpleDateFormat(FORMAT_DEFAULT_FULL).parse(strDate).getTime();
+        } catch (ParseException e) {
+        }
+        return time;
     }
 
 }

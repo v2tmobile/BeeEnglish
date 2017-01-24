@@ -9,9 +9,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Base64;
 import android.util.Log;
-import android.view.View;
 
 import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.model.ResponseData;
@@ -59,39 +57,90 @@ public class MyConnection {
     }
 
     public ResponseData signIn(String userName, String password) {
-        String url = MyConnection.BASE_URL + "session/auth";
+        String url = MyConnection.BASE_URL + "auth/login";
         HashMap hashMap = new HashMap();
         hashMap.put("username", userName);
         hashMap.put("password", password);
         return performPostCall(url, hashMap,METHOD_POST);
     }
+    public ResponseData signInFacebook(String tokenKey ) {
+        String url = null;
+        try {
+            url = MyConnection.BASE_URL + "auth/facebook-auth?access_token="+ URLEncoder.encode(tokenKey, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            url = MyConnection.BASE_URL + "auth/facebook-auth?access_token="+tokenKey;
+
+        }
+        HashMap hashMap = new HashMap();
+//        hashMap.put("access_token", tokenKey);
+        return performPostCall(url, hashMap,METHOD_POST);
+    } public ResponseData signInGmail(String tokenKey ) {
+        String url = null;
+        try {
+            url = MyConnection.BASE_URL + "auth/google-auth?access_token="+ URLEncoder.encode(tokenKey, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            url = MyConnection.BASE_URL + "auth/google-auth?access_token="+tokenKey;
+
+        }
+        HashMap hashMap = new HashMap();
+//        hashMap.put("access_token", tokenKey);
+        return performPostCall(url, hashMap,METHOD_POST);
+    }
+    public ResponseData updatePassWord(String userId, String password) {
+        String url = MyConnection.BASE_URL + "users/update";
+        HashMap hashMap = new HashMap();
+        hashMap.put("user_id", userId);
+        hashMap.put("password", password);
+        return performPostCallUseHeader(url, hashMap,METHOD_POST);
+    }
+    public ResponseData refreshToken(String user) {
+        String url = MyConnection.BASE_URL + "auth/refresh-token";
+        HashMap hashMap = new HashMap();
+        hashMap.put("username", user);
+        return performPostCallUseHeader(url, hashMap,METHOD_GET);
+    }
+    public ResponseData updateInfo(String userId,String avatar, String name,String mobile) {
+        String url = MyConnection.BASE_URL + "users/update";
+        HashMap hashMap = new HashMap();
+        hashMap.put("user_id", userId);
+        if(!avatar.isEmpty())
+            hashMap.put("avatar", avatar);
+        if(!mobile.isEmpty())
+            hashMap.put("mobile", mobile);
+        if(!name.isEmpty()) {
+            hashMap.put("first_name", name);
+            hashMap.put("last_name", "");
+        }
+        return performPostCallUseHeader(url, hashMap,METHOD_POST);
+    }
     public ResponseData getBooks() {
-        String url = MyConnection.BASE_URL + "books";
+        String url = MyConnection.BASE_URL + "resources/book";
         HashMap hashMap = new HashMap();
         return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
+
     public ResponseData activeKey(String userName,String key,String agencyId) {
-        String url = "https://simple-payment.ahiho.com/api/keys/active";
+        String url = MyConnection.BASE_URL +"users/active-payment";
         HashMap hashMap = new HashMap();
-        hashMap.put("username", userName);
-        hashMap.put("key", key);
-        hashMap.put("agency_id", agencyId);
-        hashMap.put("application_id", "10000000");
+//        hashMap.put("username", userName);
+        hashMap.put("payment_key", key);
+//        hashMap.put("agency_id", agencyId);
+//        hashMap.put("application_id", "10000000");
         return performPostCallUseHeader(url, hashMap,METHOD_POST);
     }
     public ResponseData getCommunications() {
-        String url = MyConnection.BASE_URL + "handbooks";
+        String url = MyConnection.BASE_URL + "resources/handbook";
         HashMap hashMap = new HashMap();
         return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
     public ResponseData getDictionary() {
-        String url = MyConnection.BASE_URL + "dictionaries";
+        String url = MyConnection.BASE_URL + "resources/dictionary";
         HashMap hashMap = new HashMap();
         return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
 
     public ResponseData signUp(String userName,String email, String password) {
-        String url = MyConnection.BASE_URL + "users/register";
+        String url = MyConnection.BASE_URL + "auth/register";
         HashMap hashMap = new HashMap();
         hashMap.put("username", userName);
         hashMap.put("password", password);
@@ -110,9 +159,13 @@ public class MyConnection {
             url = new URL(requestURL);
 
             conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(method);
+
+            conn.setRequestProperty("User-Agent", "BeeEnglishAndroid");
+            conn.setRequestProperty("Content-Type","application/json");
+
             conn.setReadTimeout(30000);
             conn.setConnectTimeout(30000);
-            conn.setRequestMethod(method);
             conn.setDoInput(true);
             conn.setDoOutput(true);
 
@@ -157,27 +210,29 @@ public class MyConnection {
             url = new URL(requestURL);
 
             conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(method);
             String accessToken = UtilSharedPreferences.getInstanceSharedPreferences(mContext).getAccessToken();
+            conn.setRequestProperty("User-Agent", "BeeEnglishAndroid");
+            conn.setRequestProperty("Content-Type","application/json");
             if(!accessToken.isEmpty()) {
-                String basicAuth = "Bearer " +accessToken;
-                conn.setRequestProperty("User-Agent", "BeeEnglishAndroid");
-                conn.setRequestProperty("Accept","application/json");
-                conn.setRequestProperty("Authorization",basicAuth);
+//                String basicAuth = "Bearer " +accessToken;
+                String basicAuth = accessToken;
+                conn.setRequestProperty("x-access-token",basicAuth);
             }
             conn.setReadTimeout(30000);
             conn.setConnectTimeout(30000);
-            conn.setRequestMethod(method);
             conn.setDoInput(true);
             conn.setDoOutput(true);
+            if(postDataParams.size()>0) {
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(getPostDataString(postDataParams));
 
-            OutputStream os = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
-            writer.write(getPostDataString(postDataParams));
-
-            writer.flush();
-            writer.close();
-            os.close();
+                writer.flush();
+                writer.close();
+                os.close();
+            }
             int responseCode = conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {

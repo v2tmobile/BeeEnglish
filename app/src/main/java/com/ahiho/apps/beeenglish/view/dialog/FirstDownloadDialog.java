@@ -161,6 +161,12 @@ public class FirstDownloadDialog extends BaseActivity {
         mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(FirstDownloadDialog.this);
         mDownloadManager = new MyDownloadManager(FirstDownloadDialog.this);
         mRealm = RealmController.with(FirstDownloadDialog.this).getRealm();
+        try {
+            Realm.deleteRealm(mRealm.getConfiguration());
+            //Realm file has been deleted.
+        } catch (Exception ex){
+            //No Realm file to remove.
+        }
 //        Intent intent = getIntent();
 //        final DictionaryObject dictionaryObject = (DictionaryObject) intent.getSerializableExtra(Identity.EXTRA_DICTIONARY_OBJECT);
 
@@ -183,11 +189,36 @@ public class FirstDownloadDialog extends BaseActivity {
         btOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tvFirstDownloadDescription.setVisibility(View.INVISIBLE);
-                llDownloadProgress.setVisibility(View.VISIBLE);
-                btOk.setVisibility(View.GONE);
-                btCancel.setVisibility(View.GONE);
-                new GetDictionary().execute();
+                if(grantPermissionReadWriteFile()) {
+                    tvFirstDownloadDescription.setVisibility(View.INVISIBLE);
+                    llDownloadProgress.setVisibility(View.VISIBLE);
+                    btOk.setVisibility(View.GONE);
+                    btCancel.setVisibility(View.GONE);
+//                new GetDictionary().execute();
+                    DictionaryObject dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
+                    if (dictionaryObject == null) {
+                        try {
+                            JSONObject jsonObject = new JSONObject("{" +
+                                    "\"id\": 1," +
+                                    "\"name\": \"Từ điển Anh Việt\"," +
+                                    "\"description\": \"Từ điển Anh - Việt trên 100k từ\"," +
+                                    "\"picture\": \"https://cdn1.tgdd.vn/Products/Images/1784/70801/TFLAT-English-Vietnamese-Dictionary-icon.png\"," +
+                                    "\"content\": \"https://ahiho.com/en_vi.zip\"," +
+                                    "\"type\": \"dictionary\"," +
+                                    "\"status\": 1," +
+                                    "\"created_at\": \"2017-01-17T11:46:55.000Z\"," +
+                                    "\"updated_at\": \"2017-01-17T11:46:55.000Z\"" +
+                                    "}");
+                            mRealm.beginTransaction();
+                            mRealm.copyToRealm(new DictionaryObject(jsonObject));
+                            mRealm.commitTransaction();
+                        } catch (JSONException e) {
+
+                        }
+
+                    }
+                    downloadLink(currentDownload);
+                }
 //                new ReadJson("/storage/sdcard0/bee_english/dictionary/en_vi.zip",1).execute();
             }
         });
@@ -292,70 +323,70 @@ public class FirstDownloadDialog extends BaseActivity {
         }, 0, 10);
     }
 
-    class GetDictionary extends AsyncTask<Void, Void, ResponseData> {
-
-        @Override
-        protected void onPreExecute() {
-            showDialogLoading();
-        }
-
-        @Override
-        protected ResponseData doInBackground(Void... params) {
-            return MyConnection.getInstanceMyConnection(FirstDownloadDialog.this).getDictionary();
-
-        }
-
-        @Override
-        protected void onPostExecute(ResponseData responseData) {
-            dismissDialog();
-            if (responseData != null) {
-                if (responseData.isResponseState()) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-                        if (jsonObject.getBoolean("success")) {
-                            JSONArray jsonArray = jsonObject.getJSONArray("data");
-                            mRealm.beginTransaction();
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                DictionaryObject dictionaryObject = new DictionaryObject(jsonArray.getJSONObject(i));
-                                try {
-                                    mRealm.copyToRealm(dictionaryObject);
-                                } catch (Exception e) {
-
-                                }
-                            }
-                            mRealm.commitTransaction();
-
-                        } else {
-                            showSnackBar(R.string.err_json_exception);
-                        }
-                    } catch (JSONException e) {
-                        showSnackBar(R.string.err_json_exception);
-                    }
-                    mRealm.beginTransaction();
-                    DictionaryObject dictionaryObject = null;
-                    try {
-                        dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
-                    } catch (Exception e) {
-
-                    }
-                    mRealm.commitTransaction();
-                    if (dictionaryObject != null) {
-                        LINK_1 = dictionaryObject.getContent();
-                        ID_LINK_1 = dictionaryObject.getId();
-                        DESCRIPTION_LINK_1 = dictionaryObject.getName();
-
-                        downloadLink(currentDownload);
-                    } else {
-                        Toast.makeText(FirstDownloadDialog.this, R.string.err_connection_fail, Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                } else {
-                    showSnackBar(responseData.getResponseData());
-                }
-            }
-            super.onPostExecute(responseData);
-        }
-    }
+//    class GetDictionary extends AsyncTask<Void, Void, ResponseData> {
+//
+//        @Override
+//        protected void onPreExecute() {
+//            showDialogLoading();
+//        }
+//
+//        @Override
+//        protected ResponseData doInBackground(Void... params) {
+//            return MyConnection.getInstanceMyConnection(FirstDownloadDialog.this).getDictionary();
+//
+//        }
+//
+//        @Override
+//        protected void onPostExecute(ResponseData responseData) {
+//            dismissDialogLoading();
+//            if (responseData != null) {
+//                if (responseData.isResponseState()) {
+//                    try {
+//                        JSONObject jsonObject = new JSONObject(responseData.getResponseData());
+//                        if (jsonObject.getBoolean("success")) {
+//                            JSONArray jsonArray = jsonObject.getJSONArray("data");
+//                            mRealm.beginTransaction();
+//                            for (int i = 0; i < jsonArray.length(); i++) {
+//                                DictionaryObject dictionaryObject = new DictionaryObject(jsonArray.getJSONObject(i));
+//                                try {
+//                                    mRealm.copyToRealm(dictionaryObject);
+//                                } catch (Exception e) {
+//
+//                                }
+//                            }
+//                            mRealm.commitTransaction();
+//
+//                        } else {
+//                            showSnackBar(R.string.err_json_exception);
+//                        }
+//                    } catch (JSONException e) {
+//                        showSnackBar(R.string.err_json_exception);
+//                    }
+//                    mRealm.beginTransaction();
+//                    DictionaryObject dictionaryObject = null;
+//                    try {
+//                        dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
+//                    } catch (Exception e) {
+//
+//                    }
+//                    mRealm.commitTransaction();
+//                    if (dictionaryObject != null) {
+//                        LINK_1 = dictionaryObject.getContent();
+//                        ID_LINK_1 = dictionaryObject.getId();
+//                        DESCRIPTION_LINK_1 = dictionaryObject.getName();
+//
+//                        downloadLink(currentDownload);
+//                    } else {
+//                        Toast.makeText(FirstDownloadDialog.this, R.string.err_connection_fail, Toast.LENGTH_LONG).show();
+//                        finish();
+//                    }
+//                } else {
+//                    showSnackBar(responseData.getResponseData());
+//                }
+//            }
+//            super.onPostExecute(responseData);
+//        }
+//    }
 
     class UnzipFile extends AsyncTask<Void, Void, Boolean> {
         private String mUri;
@@ -379,7 +410,7 @@ public class FirstDownloadDialog extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            dismissDialog();
+            dismissDialogLoading();
             if (result) {
                 File file = new File(mUri);
                 file.delete();
@@ -438,7 +469,7 @@ public class FirstDownloadDialog extends BaseActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            dismissDialog();
+            dismissDialogLoading();
             if (result) {
                 File file = new File(mUri);
                 file.delete();

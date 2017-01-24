@@ -58,7 +58,7 @@
                     android:background="@drawable/button_primary"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
-                    android:text="@string/bt_pay_now"
+                    android:text="@string/bt_adjourn"
                     android:textAllCaps="true"
                     android:textColor="@color/white"/>
 

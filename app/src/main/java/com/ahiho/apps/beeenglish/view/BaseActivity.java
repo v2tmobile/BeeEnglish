@@ -1,28 +1,18 @@
 package com.ahiho.apps.beeenglish.view;
 
 import android.Manifest;
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.ahiho.apps.beeenglish.R;
-import com.ahiho.apps.beeenglish.adapter.RecyclerBooksAdapter;
-import com.ahiho.apps.beeenglish.model.BookObject;
-import com.ahiho.apps.beeenglish.model.ResponseData;
 import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
@@ -30,10 +20,6 @@ import com.ahiho.apps.beeenglish.util.MySnackBar;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.ahiho.apps.beeenglish.util.UtilString;
 import com.ahiho.apps.beeenglish.view.dialog.StatusDialog;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import static com.ahiho.apps.beeenglish.util.MyConnection.noConnectInternet;
 import static com.ahiho.apps.beeenglish.util.MyConnection.turnOnWifi;
@@ -52,6 +38,8 @@ public class BaseActivity extends AppCompatActivity {
     private final int ACTION_SIGN_UP = 1;
     private final int ACTION_GET_BOOKS = 2;
     private ProgressDialog progressDialog;
+    public boolean isProgressDialogShow = false;
+    public int lastTextLoading = R.string.loading;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -69,47 +57,52 @@ public class BaseActivity extends AppCompatActivity {
             progressDialog.dismiss();
         progressDialog = ProgressDialog.show(BaseActivity.this, null,
                 getString(R.string.loading), true);
+        isProgressDialogShow = true;
+        lastTextLoading = R.string.loading;
     }
+
     public void showDialogLoading(int textResource) {
         try {
             if ((progressDialog != null) && progressDialog.isShowing())
                 progressDialog.dismiss();
             progressDialog = ProgressDialog.show(BaseActivity.this, null,
                     getString(textResource), true);
-        }catch (Exception e){
+            isProgressDialogShow = true;
+            lastTextLoading = textResource;
+        } catch (Exception e) {
 
         }
     }
 
-    public void dismissDialog() {
+    public void dismissDialogLoading() {
+        isProgressDialogShow = false;
         try {
             if ((progressDialog != null) && progressDialog.isShowing())
                 progressDialog.dismiss();
             progressDialog = null;
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
     public void showDialogStatus(String title, String text, boolean status) {
         Intent intent = new Intent(BaseActivity.this, StatusDialog.class);
-        intent.putExtra(Identity.EXTRA_STATUS_TITLE,title);
-        intent.putExtra(Identity.EXTRA_STATUS_TEXT,text);
-        intent.putExtra(Identity.EXTRA_STATUS_BOOLEAN,status);
+        intent.putExtra(Identity.EXTRA_STATUS_TITLE, title);
+        intent.putExtra(Identity.EXTRA_STATUS_TEXT, text);
+        intent.putExtra(Identity.EXTRA_STATUS_BOOLEAN, status);
         startActivity(intent);
 
     }
 
 
-
-
     @Override
     protected void onDestroy() {
-        dismissDialog();
+        dismissDialogLoading();
         super.onDestroy();
     }
 
     @Override
     protected void onPause() {
-        dismissDialog();
+        dismissDialogLoading();
         super.onPause();
     }
 
@@ -153,12 +146,15 @@ public class BaseActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                mSnackbar.showTextAction(R.string.err_permission_file, R.string.bt_try_connection, new OnCallbackSnackBar() {
+                if(mSnackbar!=null)
+                mSnackbar.showTextAction(R.string.err_permission_file, R.string.bt_try_grand, new OnCallbackSnackBar() {
                     @Override
                     public void onAction() {
                         grantPermissionReadWriteFile();
                     }
                 });
+                break;
+            case Identity.REQUEST_PERMISSION_CAMERA:
                 break;
         }
     }
@@ -178,18 +174,40 @@ public class BaseActivity extends AppCompatActivity {
         return result;
     }
 
+    public boolean grantPermissionCamera() {
+        boolean result = false;
+        int permissionCamera = ContextCompat.checkSelfPermission(BaseActivity.this,
+                Manifest.permission.CAMERA);
+        if (permissionCamera != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(BaseActivity.this,
+                    new String[]{Manifest.permission.CAMERA}, Identity.REQUEST_PERMISSION_CAMERA);
+        } else {
+            result = true;
+        }
+        return result;
+    }
+
     public void showSnackBar(String text) {
-        mSnackbar.showText(text);
+        try {
+            mSnackbar.showText(text);
+        } catch (Exception e) {
+            showToast(text, Toast.LENGTH_LONG);
+        }
     }
 
     public void showSnackBar(int textResource) {
-        mSnackbar.showText(textResource);
+        try {
+            mSnackbar.showText(textResource);
+        } catch (Exception e) {
+            showToast(textResource, Toast.LENGTH_LONG);
+        }
     }
-    public void showToast(String text,int length) {
+
+    public void showToast(String text, int length) {
         Toast.makeText(this, text, length).show();
     }
 
-    public void showToast(int textResource,int length) {
+    public void showToast(int textResource, int length) {
         Toast.makeText(this, textResource, length).show();
     }
 
@@ -201,8 +219,6 @@ public class BaseActivity extends AppCompatActivity {
         }
         return false;
     }
-
-
 
 
 }

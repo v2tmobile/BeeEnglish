@@ -1,141 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_dictionary"
+
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.ahiho.apps.beeenglish.view.DictionaryActivity">
+    android:animateLayoutChanges="true"
+    >
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cvSelectDictionary"
+
+    <android.support.design.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context=".view.activity.MainActivity">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="match_parent"
-                android:layout_alignParentRight="true"
-                android:padding="8dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_arrow_drop_down_white_24dp"
-                android:tint="@color/colorPrimary"/>
-
-            <TextView
-                android:id="@+id/tvCurrentDictionary"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginRight="8dp"
-                android:gravity="center_vertical"
-                android:paddingLeft="16dp"
-                android:textColor="@color/colorPrimary"
-                android:textSize="18dp"/>
-        </RelativeLayout>
-    </android.support.v7.widget.CardView>
-
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/cvTranslate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cvSelectDictionary"
-        android:layout_marginBottom="8dp">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="16dp"
-            android:paddingRight="8dp"
-            android:paddingTop="16dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/etInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/edit_text_"
-                android:hint="@string/hint_dictionary_input"
-                android:imeOptions="actionDone"
-                android:lines="3"
-                android:paddingLeft="16dp"
-                android:paddingRight="24dp"/>
-
-            <ImageButton
-                android:id="@+id/btClearInput"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentRight="true"
-                android:background="@null"
-                android:src="@drawable/quantum_ic_clear_white_24"
-                android:tint="@color/black"
-                android:visibility="gone"
-                />
-        </RelativeLayout>
-        <ListView
-            android:id="@+id/lvDictionary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/cvSelectDictionary"
-            android:background="@color/white"
-            android:choiceMode="singleChoice"
-            android:visibility="gone"
-            />
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cvTranslate"
-        android:layout_margin="8dp"
-        >
-
-        <RelativeLayout
+            android:id="@+id/activity_dictionary"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
-            android:padding="8dp"
-            >
+            android:orientation="vertical"
+            tools:context="com.ahiho.apps.beeenglish.view.DictionaryActivity">
 
-            <include layout="@layout/not_found_data"/>
-
-            <WebView
-                android:id="@+id/etTranslate"
+            <android.support.design.widget.AppBarLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/app_bar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/edit_text_"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:paddingLeft="16dp"
-                android:paddingRight="24dp"
-                android:textColor="@color/white"/>
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                >
 
-            <ImageButton
-                android:id="@+id/btCopy"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/etTranslate"
-                android:background="@null"
-                android:padding="8dp"
-                android:src="@drawable/ic_content_copy_white_24dp"
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/tool_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@color/colorPrimary">
+
+
+                    <RelativeLayout
+                        android:id="@+id/rlSelectDictionary"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@color/colorPrimary">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+                            android:padding="8dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_arrow_drop_down_white_24dp"
+                            android:tint="@color/white"/>
+
+                        <TextView
+                            android:id="@+id/tvCurrentDictionary"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="8dp"
+                            android:gravity="center_vertical"
+                            android:paddingLeft="16dp"
+                            android:textColor="@color/white"
+                            android:textSize="18dp"/>
+                    </RelativeLayout>
+                </android.support.v7.widget.Toolbar>
+            </android.support.design.widget.AppBarLayout>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/cvTranslate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/app_bar"
+                android:layout_marginBottom="8dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="16dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="16dp">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/etInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/edit_text_"
+                        android:hint="@string/hint_dictionary_input"
+                        android:imeOptions="actionDone"
+                        android:lines="3"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="24dp"/>
+
+                    <ImageButton
+                        android:id="@+id/btClearInput"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentRight="true"
+                        android:background="@null"
+                        android:src="@drawable/quantum_ic_clear_white_24"
+                        android:tint="@color/black"
+                        android:visibility="gone"
+                        />
+                </RelativeLayout>
+
+                <ListView
+                    android:id="@+id/lvDictionary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/cvSelectDictionary"
+                    android:background="@color/white"
+                    android:choiceMode="singleChoice"
+                    android:visibility="gone"
+                    />
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/cvTranslate"
+                android:layout_margin="8dp"
+                >
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorPrimary"
+                    android:padding="8dp"
+                    >
+
+                <include layout="@layout/not_found_data"/>
+
+                <WebView
+                    android:id="@+id/etTranslate"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/edit_text_"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="24dp"
+                    android:textColor="@color/white"/>
+
+                <ImageButton
+                    android:id="@+id/btCopy"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/etTranslate"
+                    android:background="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_content_copy_white_24dp"
+                    android:visibility="gone"/>
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+
+            <ListView
+                android:id="@+id/lvHintTranslate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/cvTranslate"
+                android:background="@color/white"
+                android:choiceMode="singleChoice"
                 android:visibility="gone"/>
         </RelativeLayout>
-    </android.support.v7.widget.CardView>
 
-    <ListView
-        android:id="@+id/lvHintTranslate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cvTranslate"
-        android:background="@color/white"
-        android:choiceMode="singleChoice"
-        android:visibility="gone"/>
+    </android.support.design.widget.CoordinatorLayout>
 
 
-</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>

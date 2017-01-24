@@ -93,7 +93,6 @@ public class GrammarActivity extends BaseActivity {
         }catch (Exception e){
 
         }
-        Log.e("RESPONSE",grammarObjects.size()+"");
         if(grammarObjects !=null&& grammarObjects.size()>0) {
             List<GlobalObject> globalObjects= new ArrayList<>();
             for (GrammarObject sampleObject: grammarObjects){

@@ -56,6 +56,7 @@
         </activity>
         <activity
             android:name=".view.HomeActivity"
+            android:keepScreenOn="true"
             android:label="@string/title_activity_home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -90,9 +91,11 @@
         </activity>
         <activity
             android:name=".view.DictionaryActivity"
+            android:keepScreenOn="true"
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/title_activity_dictionary">
         </activity>
-        <!--Dialog-->
+        <!-- Dialog -->
         <activity
             android:name=".view.dialog.StatusDialog"
             android:theme="@style/AppTheme.DialogCloseOnTouchOutSide"/>
@@ -104,7 +107,7 @@
             android:name=".view.dialog.ActiveDialog"
             android:theme="@style/AppTheme.DialogNotCloseOnTouchOutSide">
         </activity>
-        <!--end dialog-->
+        <!-- end dialog -->
         <activity
             android:name=".view.sample.SampleActivity"
             android:label="@string/title_activity_sample"
@@ -131,8 +134,20 @@
         </activity>
         <activity android:name=".view.communication.CommunicationDetailActivity">
         </activity>
-        <activity android:name=".view.communication.CommunicationStoreActivity" android:label="@string/title_activity_communication">
+        <activity
+            android:name=".view.communication.CommunicationStoreActivity"
+            android:label="@string/title_activity_communication">
         </activity>
+        <activity
+            android:name=".view.AboutActivity"
+            android:theme="@style/FullScreen">
+        </activity>
+        <activity android:name=".view.InfoActivity" android:theme="@style/FullScreen">
+        </activity>
+        <service
+            android:name=".service.ServiceRequestToken"
+            android:enabled="true" />
+
     </application>
 
 </manifest>

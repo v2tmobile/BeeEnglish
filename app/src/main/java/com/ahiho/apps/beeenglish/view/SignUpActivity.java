@@ -1,7 +1,6 @@
 package com.ahiho.apps.beeenglish.view;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,7 +21,7 @@ import org.json.JSONObject;
 public class SignUpActivity extends BaseActivity {
 
     private ImageButton btBack, btHelp;
-    private EditText etUserName, etEmail, etPassword;
+    private EditText etUserName,etPhone, etEmail, etPassword;
     private Button btSignUp;
     private TextView tvAlreadyAccount;
 
@@ -39,6 +38,7 @@ public class SignUpActivity extends BaseActivity {
         btBack = (ImageButton) findViewById(R.id.btBack);
         btHelp = (ImageButton) findViewById(R.id.btHelp);
         etUserName = (EditText) findViewById(R.id.etUserName);
+        etPhone = (EditText) findViewById(R.id.etPhone);
         etEmail = (EditText) findViewById(R.id.etEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
         tvAlreadyAccount = (TextView) findViewById(R.id.tvAlreadyAccount);
@@ -49,18 +49,29 @@ public class SignUpActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 String userName = etUserName.getText().toString();
+                String phone = etPhone.getText().toString();
                 String email = etEmail.getText().toString();
                 String password = etPassword.getText().toString();
-                if (!userName.contains(" ")) {
-                    if (password.length() > 4) {
-                        if(isOnline())
-                            new SignUp(userName, email, password).execute();
+                if (!userName.isEmpty()) {
+                    if (!userName.contains(" ")) {
+                        if(!phone.isEmpty()) {
+                            if (password.length() > 4) {
+                                if (isOnline())
+                                    new SignUp(userName, email, password).execute();
+                            } else {
+                                etPassword.setError(getString(R.string.err_password_short));
+                                etPassword.requestFocus();
+                            }
+                        }else{
+                            etPhone.setError(getString(R.string.err_edit_text_empty));
+                            etPhone.requestFocus();
+                        }
                     } else {
-                        etPassword.setError(getString(R.string.err_password_short));
-                        etPassword.requestFocus();
+                        etUserName.setError(getString(R.string.err_username_invalid));
+                        etUserName.requestFocus();
                     }
-                } else {
-                    etUserName.setError(getString(R.string.err_username_invalid));
+                }else{
+                    etUserName.setError(getString(R.string.err_edit_text_empty));
                     etUserName.requestFocus();
                 }
             }
@@ -95,7 +106,6 @@ public class SignUpActivity extends BaseActivity {
         @Override
         protected void onPreExecute() {
             showDialogLoading();
-
         }
 
         @Override
@@ -105,7 +115,7 @@ public class SignUpActivity extends BaseActivity {
 
         @Override
         protected void onPostExecute(ResponseData responseData) {
-            dismissDialog();
+            dismissDialogLoading();
             if (responseData.isResponseState()) {
                         postSignUp(responseData,mUserName,mPassword);
             } else {
@@ -117,14 +127,20 @@ public class SignUpActivity extends BaseActivity {
 
     private void postSignUp(ResponseData responseData,String userName,String password) {
         try {
-            JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-            if (jsonObject.getBoolean("success")) {
-                showSnackBar(R.string.success_sign_up);
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(Identity.EXTRA_USER_NAME,userName);
-                returnIntent.putExtra(Identity.EXTRA_PASSWORD,password);
-                setResult(Activity.RESULT_OK,returnIntent);
-                finish();
+            if(responseData.isResponseState()) {
+                JSONObject jsonObject = new JSONObject(responseData.getResponseData());
+                if (jsonObject.getBoolean("success")) {
+                    showSnackBar(R.string.success_sign_up);
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra(Identity.EXTRA_USER_NAME, userName);
+                    returnIntent.putExtra(Identity.EXTRA_PASSWORD, password);
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    finish();
+                } else {
+                    showSnackBar(responseData.getResponseData());
+                }
+            }else{
+                showSnackBar(responseData.getResponseData());
             }
         } catch (JSONException e) {
             showSnackBar(R.string.err_json_exception);

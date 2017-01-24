@@ -3,6 +3,13 @@
 
     <!--menu left-->
     <string name="nav_active">Kích hoạt app</string>
+    <string name="nav_active_success">Thông tin license</string>
+    <string name="nav_info">Thông tin</string>
+    <string name="nav_share">Chia sẻ</string>
+    <string name="nav_password_change">Đổi mật khẩu</string>
+    <string name="nav_about">Copyright</string>
+    <string name="nav_sign_out">Đăng xuất</string>
+
     <!--menu-->
     <string name="action_settings">Settings</string>
     <string name="action_download_communication">Tải tài liệu</string>
@@ -20,8 +27,10 @@
     <string name="bt_buy">Mua bản quyền</string>
     <string name="bt_cancel">Huỷ</string>
     <string name="bt_close">Đóng</string>
-    <string name="bt_pay_now">Mua ngay</string>
+    <string name="bt_adjourn">Gia hạn</string>
+    <string name="bt_change_pass">Cập nhật mật khẩu</string>
     <string name="bt_download">Tải xuống</string>
+    <string name="bt_update">Cập nhật thông tin</string>
     <!--Hint-->
     <string name="hint_dictionary_input">Nhập văn bản</string>
     <string name="hint_email">Email</string>
@@ -29,6 +38,10 @@
     <string name="hint_password">Mật khẩu</string>
     <string name="hint_username">Tên đăng nhập</string>
     <string name="hint_code_active">XXX-XXXX-XXXX-XXXX</string>
+    <string name="hint_old_pass">Mật khẩu hiện tại</string>
+    <string name="hint_new_pass">Mật khẩu mới</string>
+    <string name="hint_renew_pass">Nhập lại mật khẩu mới</string>
+    <string name="hint_phone">Số điện thoại</string>
     <!--error-->
     <string name="err_title">Đã xảy ra lỗi!</string>
     <string name="err_username_invalid">Tên đăng nhập không chứa dấu cách</string>
@@ -36,8 +49,10 @@
     <string name="err_password_short">Mật khẩu quá ngắn</string>
     <string name="err_connection_fail">Không có kết nối internet</string>
     <string name="err_qr_not_match">Mã kích hoạt không chính xác</string>
+    <string name="err_wifi_off">Cần có internet để sử dụng chức năng này</string>
     <string name="err_permission_wifi">Bạn đã từ chối cấp quyền bật wifi</string>
     <string name="err_permission_file">Bạn đã từ chối cấp quyền đọc ghi file</string>
+    <string name="err_permission_camera">Bạn đã từ chối cấp quyền Camera</string>
     <string name="err_json_exception">Không thể đọc dữ liệu từ server</string>
     <string name="err_download_file">Tải thất bại</string>
     <string name="err_download_file_description">Sự cố xảy ra có thể do kết nối đường truyền không ổn định hoặc server đang gặp sự cố.\n\nVui lòng thử lại sau</string>
@@ -47,8 +62,12 @@
     <string name="err_not_found_data">Không có dữ liệu\nVui lòng mở kết nối internet</string>
     <string name="err_trial_time">Hết thời gian dùng thử</string>
     <string name="err_trial_time_action">Hết thời gian dùng thử</string>
+    <string name="err_edit_text_empty">Thông tin này là cần thiết</string>
+    <string name="err_password_not_match">Mật khẩu nhập lại không khớp</string>
+    <string name="err_password_exist">Phải khác mật khẩu cũ</string>
     <!--success-->
     <string name="success_title">Thành công</string>
+    <string name="success_share">Chia sẻ thành công</string>
     <string name="success_downloaded_file">Đã tải</string>
     <string name="success_copied">Bản dịch đã được sao chép</string>
     <string name="not_download_file">Chưa tải</string>
@@ -74,17 +93,34 @@
     <string name="fun_test">Trắc nghiệm</string>
     <string name="fun_book">Sách tiếng anh</string>
     <string name="fun_communicate">Sổ tay giao tiếp</string>
+    <string name="success_change_pass">Cập nhật mật khẩu mới thành công</string>
+
     <!--Test Vocabulary-->
     <string name="exercises">Exercises</string>
     <!--Dialog trial-->
     <string name="trial_title">Dùng thử</string>
+    <string name="trial_title_active">Đã kích hoạt</string>
     <string name="trial_content">Khi hết thời gian dùng thử bạn sẽ không thể tiếp tục sử dụng các chức năng của ứng dụng. </string>
+    <string name="trial_content_active">Bây giờ bạn có thể sử dụng tất cả mọi tính năng của ứng dụng. Tải miễn phí tất cả các tài liệu.</string>
     <!--Dialog active-->
     <string name="active_title">Kích hoạt</string>
     <string name="active_title_content">Nhập mã kích hoạt</string>
     <string name="active_success">Ứng dụng đã được kích hoạt</string>
     <string name="active_text_content">Bạn nhận được mã kích hoạt khi thực hiện mua bản quyền ứng dụng</string>
     <string name="active_scan_qr">Quét mã QR</string>
+
+    <string name="scan_qr">Quét mã QR code để kích hoạt ứng dụng</string>
+    <!--Activity about-->
+    <string name="tm_text">™</string>
+    <string name="copy_right_of">Bản quyền thuộc về công ty Ahiho\nĐang chờ bằng sáng chế</string>
+    <string name="about_content">Chương trình này được bảo hộ theo luật bản quyền và hiệp ước quốc tế. Việc sao chép hoặc phân phối trái phép chương trình này có thể chịu những hình phạt nặng về dân sự và hình sự và sẽ bị truy tố tới mức tối đa trong giới hạn của luật pháp</string>
+    <string name="term_text">Điều khoản sử dụng</string>
+
+    <!--Dialog Change pass-->
+    <string name="change_pass_title">Đổi mật khẩu</string>
+    <string name="change_pass_content">Đừng quên ghi lại mật khẩu mới.</string>
+<!--Activity info-->
+    <string name="success_update_info">Cập nhật thành công</string>
 
     <!--Optional-->
     <string name="facebook_app_id">333946356968090</string>
@@ -105,6 +141,7 @@
     <string name="download_file">Đang tải tệp</string>
     <string name="search_hint">Tìm kiếm</string>
     <string name="share_text_download">Tải tập tin tại:</string>
+    <string name="share_text_app">Tải ứng dụng học tiếng anh tại:</string>
     <string name="offline_data">Từ điển ngoại tuyến</string>
     <string name="first_download">Tải xuống lần đầu</string>
     <string name="first_download_description">Lần đầu tải xuống sẽ mất một vài phút. Vui lòng duy trì kết nối mạng ổn định.\nNên sử dụng kết nối <b>wifi</b>  </string>

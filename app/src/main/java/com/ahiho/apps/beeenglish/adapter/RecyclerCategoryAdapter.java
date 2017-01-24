@@ -6,6 +6,7 @@ package com.ahiho.apps.beeenglish.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.support.v7.widget.CardView;
@@ -23,9 +24,11 @@ import com.ahiho.apps.beeenglish.R;
 import com.ahiho.apps.beeenglish.model.CategoryObject;
 import com.ahiho.apps.beeenglish.model.FunctionObject;
 import com.ahiho.apps.beeenglish.util.Identity;
+import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.ahiho.apps.beeenglish.view.BooksActivity;
 import com.ahiho.apps.beeenglish.view.DictionaryActivity;
 import com.ahiho.apps.beeenglish.view.GrammarActivity;
+import com.ahiho.apps.beeenglish.view.communication.CommunicationActivity;
 import com.ahiho.apps.beeenglish.view.sample.SampleActivity;
 import com.ahiho.apps.beeenglish.view.VocabularyActivity;
 
@@ -41,6 +44,7 @@ public class RecyclerCategoryAdapter extends RecyclerView
     private Context mContext;
     private boolean mIsRecent;
     private int screenWidth;
+    private UtilSharedPreferences mUtilSharedPreferences;
 
 
     public RecyclerCategoryAdapter(List<FunctionObject> dataset, boolean isRecent) {
@@ -73,6 +77,7 @@ public class RecyclerCategoryAdapter extends RecyclerView
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_function, parent, false);
         mContext = view.getContext();
+        mUtilSharedPreferences= UtilSharedPreferences.getInstanceSharedPreferences(mContext);
         float scale = mContext.getResources().getDisplayMetrics().density;
         int paddingSub = (int) (40 * scale + 0.5f);
         WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -99,30 +104,39 @@ public class RecyclerCategoryAdapter extends RecyclerView
         holder.view.setOnClickListener(new View.OnClickListener() {
                                            @Override
                                            public void onClick(View v) {
-                                               openCategory(id);
-                                               Realm mRealm =null;
-                                               try {
-                                                   mRealm = Realm.getDefaultInstance();
-                                                   mRealm.beginTransaction();
-                                                   try {
-                                                       CategoryObject object = mRealm.where(CategoryObject.class).equalTo("id", id).findFirst();
-                                                       if (object != null) {
-                                                           object.setCount(object.getCount() + 1);
-                                                       } else {
-                                                           mRealm.copyToRealm(new CategoryObject(id, 1));
+                                               if (mUtilSharedPreferences.isUpdateFirst()) {
+                                                   long time = mUtilSharedPreferences.getTrialTimeExpired() - System.currentTimeMillis();
+                                                   if (time > 0) {
+                                                       openCategory(id);
+                                                       Realm mRealm = null;
+                                                       try {
+                                                           mRealm = Realm.getDefaultInstance();
+                                                           mRealm.beginTransaction();
+                                                           try {
+                                                               CategoryObject object = mRealm.where(CategoryObject.class).equalTo("id", id).findFirst();
+                                                               if (object != null) {
+                                                                   object.setCount(object.getCount() + 1);
+                                                               } else {
+                                                                   mRealm.copyToRealm(new CategoryObject(id, 1));
+                                                               }
+                                                           } catch (Exception e) {
+                                                           }
+                                                           mRealm.commitTransaction();
+
+                                                       } catch (Exception e) {
+
+                                                       } finally {
+                                                           if (mRealm != null)
+                                                               mRealm.close();
                                                        }
-                                                   } catch (Exception e) {
+                                                   } else {
+                                                       Intent intent = new Intent(Identity.EXPIRED_BROADCAST);
+                                                       mContext.sendBroadcast(intent);
                                                    }
-                                                   mRealm.commitTransaction();
-
-                                               }catch (Exception e){
-
-                                               }finally {
-                                                   if(mRealm!=null)
-                                                       mRealm.close();
+                                               }else{
+                                                   Intent intent = new Intent(Identity.UPDATE_FIRST_BROADCAST);
+                                                   mContext.sendBroadcast(intent);
                                                }
-
-
                                            }
                                        }
 
@@ -147,8 +161,11 @@ public class RecyclerCategoryAdapter extends RecyclerView
             case Identity.FUN_ID_VOCABULARY:
                 intent = new Intent(mContext, VocabularyActivity.class);
                 break;
+            case Identity.FUN_ID_COMMUNICATE:
+                intent = new Intent(mContext, CommunicationActivity.class);
+                break;
             default:
-                intent = new Intent(mContext, VocabularyActivity.class);
+                intent = new Intent(mContext, DictionaryActivity.class);
                 break;
         }
         mContext.startActivity(intent);

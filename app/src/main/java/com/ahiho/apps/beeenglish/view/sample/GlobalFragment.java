@@ -16,7 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ahiho.apps.beeenglish.R;
-import com.ahiho.apps.beeenglish.adapter.RecyclerCategoryAdapter;
 import com.ahiho.apps.beeenglish.adapter.RecyclerSampleSubListAdapter;
 import com.ahiho.apps.beeenglish.model.FunctionObject;
 import com.ahiho.apps.beeenglish.model.realm_object.GrammarObject;
