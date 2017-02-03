@@ -161,12 +161,12 @@ public class FirstDownloadDialog extends BaseActivity {
         mUtilSharedPreferences = UtilSharedPreferences.getInstanceSharedPreferences(FirstDownloadDialog.this);
         mDownloadManager = new MyDownloadManager(FirstDownloadDialog.this);
         mRealm = RealmController.with(FirstDownloadDialog.this).getRealm();
-        try {
-            Realm.deleteRealm(mRealm.getConfiguration());
-            //Realm file has been deleted.
-        } catch (Exception ex){
-            //No Realm file to remove.
-        }
+//        try {
+//            Realm.deleteRealm(mRealm.getConfiguration());
+//            //Realm file has been deleted.
+//        } catch (Exception ex){
+//            //No Realm file to remove.
+//        }
 //        Intent intent = getIntent();
 //        final DictionaryObject dictionaryObject = (DictionaryObject) intent.getSerializableExtra(Identity.EXTRA_DICTIONARY_OBJECT);
 
@@ -195,7 +195,12 @@ public class FirstDownloadDialog extends BaseActivity {
                     btOk.setVisibility(View.GONE);
                     btCancel.setVisibility(View.GONE);
 //                new GetDictionary().execute();
-                    DictionaryObject dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
+                    DictionaryObject dictionaryObject=null;
+                    try {
+                        dictionaryObject = mRealm.where(DictionaryObject.class).findFirst();
+                    }catch (Exception e){
+
+                    }
                     if (dictionaryObject == null) {
                         try {
                             JSONObject jsonObject = new JSONObject("{" +
@@ -210,7 +215,7 @@ public class FirstDownloadDialog extends BaseActivity {
                                     "\"updated_at\": \"2017-01-17T11:46:55.000Z\"" +
                                     "}");
                             mRealm.beginTransaction();
-                            mRealm.copyToRealm(new DictionaryObject(jsonObject));
+                            mRealm.copyToRealmOrUpdate(new DictionaryObject(jsonObject));
                             mRealm.commitTransaction();
                         } catch (JSONException e) {
 

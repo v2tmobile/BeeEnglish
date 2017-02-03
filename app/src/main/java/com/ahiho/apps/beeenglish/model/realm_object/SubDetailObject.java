@@ -8,8 +8,7 @@ import io.realm.annotations.PrimaryKey;
  */
 
 public class SubDetailObject extends RealmObject {
-    @PrimaryKey
-    private int id;
+
     private String name;
     private String detail;
     private String link;
@@ -19,20 +18,13 @@ public class SubDetailObject extends RealmObject {
     }
 
     public SubDetailObject(int id, String name, String detail, String link, long testId) {
-        this.id = id;
         this.name = name;
         this.detail = detail;
         this.link = link;
         this.testId=testId;
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
