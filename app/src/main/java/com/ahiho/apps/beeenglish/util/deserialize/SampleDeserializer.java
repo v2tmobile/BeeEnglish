@@ -46,7 +46,7 @@ public class SampleDeserializer implements JsonDeserializer<SampleObject> {
         //The deserialisation code is missing
 
         final SampleObject sampleObject = new SampleObject();
-        sampleObject.setId(id);
+//        sampleObject.setId(id);
         sampleObject.setName(name);
         sampleObject.setData(subObjects);
         return sampleObject;

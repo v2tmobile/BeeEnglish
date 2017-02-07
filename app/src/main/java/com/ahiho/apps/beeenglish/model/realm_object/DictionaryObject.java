@@ -35,11 +35,11 @@ public class DictionaryObject extends RealmObject implements Serializable {
             picture= jsonObject.getString("picture");
             content= jsonObject.getString("content");
 
-            JSONObject jsonCreated = jsonObject.getJSONObject("created");
-            dateCreate= jsonCreated.getString("date");
+//            JSONObject jsonCreated = jsonObject.getJSONObject("created_at");
+            dateCreate= jsonObject.getString("created_at");
 
-            JSONObject jsonModified = jsonObject.getJSONObject("modified");
-            dateModified= jsonModified.getString("date");
+//            JSONObject jsonModified = jsonObject.getJSONObject("updated_at");
+            dateModified= jsonObject.getString("updated_at");
         } catch (JSONException e) {
 
         }

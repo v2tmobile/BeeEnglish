@@ -111,7 +111,6 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         filter.addAction(Identity.UPDATE_FIRST_BROADCAST);
         registerReceiver(broadCastExpired,filter );
         init();
-        grantPermissionReadWriteFile();
     }
 
 
@@ -154,7 +153,6 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         ivAvatar = (CircleImageView) mNavigationView.getHeaderView(0).findViewById(R.id.ivAvatar);
         tvDisplayName = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.tvDisplayName);
         tvEmail = (TextView) mNavigationView.getHeaderView(0).findViewById(R.id.tvEmail);
-
         updateMenuLeft();
 
 //        btDictionary,btBook,btTest,btSample,btSkill,btGrammar,btCommunicate,btVocabulary
@@ -182,7 +180,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             isValidUser();
         }
-
+        grantPermissionReadWriteFile();
     }
 
     private void initData() {
@@ -201,7 +199,13 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
     private void updateUsually() {
         List<FunctionObject> objectUsually = new ArrayList<>();
-        List<CategoryObject> categoryObjects = mRealm.where(CategoryObject.class).findAllSorted("count", false);
+
+        List<CategoryObject> categoryObjects = new ArrayList<>();
+        try {
+            categoryObjects = mRealm.where(CategoryObject.class).findAllSorted("count", false);
+        }catch (Exception e){
+
+        }
         if (categoryObjects != null && categoryObjects.size() > 0) {
             for (int i = 0; i < 3; i++) {
                 for (FunctionObject object : functionObjects) {
