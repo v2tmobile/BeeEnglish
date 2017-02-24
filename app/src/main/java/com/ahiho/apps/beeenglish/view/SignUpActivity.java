@@ -57,7 +57,7 @@ public class SignUpActivity extends BaseActivity {
                         if(!phone.isEmpty()) {
                             if (password.length() > 4) {
                                 if (isOnline())
-                                    new SignUp(userName, email, password).execute();
+                                    new SignUp(userName, email, phone, password).execute();
                             } else {
                                 etPassword.setError(getString(R.string.err_password_short));
                                 etPassword.requestFocus();
@@ -95,12 +95,13 @@ public class SignUpActivity extends BaseActivity {
 
     class SignUp extends AsyncTask<Void, Void, ResponseData> {
 
-        private String mUserName, mEmail, mPassword;
+        private String mUserName, mEmail, mMobile, mPassword;
 
         public SignUp(String... params) {
             mUserName = params[0];
             mEmail = params[1];
-            mPassword = params[2];
+            mMobile = params[2];
+            mPassword = params[3];
         }
 
         @Override
@@ -110,7 +111,7 @@ public class SignUpActivity extends BaseActivity {
 
         @Override
         protected ResponseData doInBackground(Void... params) {
-            return MyConnection.getInstanceMyConnection(SignUpActivity.this).signUp(mUserName, mEmail, mPassword);
+            return MyConnection.getInstanceMyConnection(SignUpActivity.this).signUp(mUserName, mEmail, mMobile, mPassword);
         }
 
         @Override

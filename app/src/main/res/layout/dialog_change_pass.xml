@@ -27,7 +27,6 @@
         android:textSize="14dp"/>
 
     <EditText
-        android:visibility="gone"
         android:id="@+id/etOldPassword"
         android:inputType="textPassword"
         android:layout_width="match_parent"

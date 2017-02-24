@@ -3,13 +3,11 @@ package com.ahiho.apps.beeenglish.view;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,14 +24,11 @@ import com.ahiho.apps.beeenglish.model.ResponseData;
 import com.ahiho.apps.beeenglish.my_interface.OnCallbackSnackBar;
 import com.ahiho.apps.beeenglish.util.Identity;
 import com.ahiho.apps.beeenglish.util.MyConnection;
-import com.ahiho.apps.beeenglish.util.MyFile;
 import com.ahiho.apps.beeenglish.util.UtilSharedPreferences;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -107,8 +102,8 @@ public class InfoActivity extends BaseActivity {
         ivAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, RESULT_SELECT_IMAGE);
+//                Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//                startActivityForResult(i, RESULT_SELECT_IMAGE);
             }
         });
 
@@ -151,6 +146,14 @@ public class InfoActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (MyConnection.isOnline(InfoActivity.this)) {
+                    JSONObject jsonObject;
+                    String username = null;
+                    try {
+                        jsonObject = new JSONObject(mUtilSharedPreferences.getUserData());
+                        username = jsonObject.getString("username");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     String name = etDisplayName.getText().toString();
                     String phone = etPhone.getText().toString();
                     if (name.isEmpty()) {
@@ -159,7 +162,7 @@ public class InfoActivity extends BaseActivity {
                         if (phone.isEmpty()) {
                             etPhone.setError(getString(R.string.err_edit_text_empty));
                         } else {
-                            new UpdateInfo(name, phone).execute();
+                            new UpdateInfo(username, name, phone).execute();
                         }
                     }
                 } else {
@@ -255,9 +258,10 @@ public class InfoActivity extends BaseActivity {
 
     class UpdateInfo extends AsyncTask<Void, Void, ResponseData> {
         private int reqWidth, reqHeight, MAX_IMAGE_SIZE;
-        private String name, phone;
+        private String username, name, phone;
 
-        public UpdateInfo(String name, String phone) {
+        public UpdateInfo(String username, String name, String phone) {
+            this.username = username;
             this.name = name;
             this.phone = phone;
             reqWidth = ivAvatar.getWidth();
@@ -296,7 +300,7 @@ public class InfoActivity extends BaseActivity {
 //                }
 //            } catch (Exception e) {
 //            }
-            return MyConnection.getInstanceMyConnection(InfoActivity.this).updateInfo(mUserId, avatar, name, phone);
+            return MyConnection.getInstanceMyConnection(InfoActivity.this).updateInfo(mUserId, avatar, username, name, phone);
         }
 
         @Override
@@ -305,23 +309,23 @@ public class InfoActivity extends BaseActivity {
             try {
                 if (responseData.isResponseState()) {
                     JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-                    if (jsonObject.getBoolean("success")) {
+                    if (!jsonObject.isNull("success") && jsonObject.getBoolean("success")) {
                         JSONObject data = jsonObject.getJSONObject("data");
                         JSONObject userData= new JSONObject(mUtilSharedPreferences.getUserData());
                         userData.put("first_name",data.getString("first_name"));
                         userData.put("last_name",data.getString("last_name"));
-                        userData.put("avatar",data.getString("avatar"));
+//                        userData.put("avatar",data.getString("avatar"));
                         mUtilSharedPreferences.setUserData(userData.toString());
                         showToast(R.string.success_update_info,Toast.LENGTH_LONG);
                         finish();
                     } else {
-                        loadFail(responseData.getResponseData());
+                        loadFail(new JSONObject(responseData.getResponseData()).getJSONObject("error").getString("message"));
                     }
                 } else {
                     loadFail(responseData.getResponseData());
                 }
             } catch (JSONException e) {
-
+                Log.e("Update user info", e.getMessage());
                 loadFail(getString(R.string.err_json_exception));
             }
             super.onPostExecute(responseData);

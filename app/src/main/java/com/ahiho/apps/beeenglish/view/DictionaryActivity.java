@@ -160,7 +160,7 @@ public class DictionaryActivity extends BaseActivity {
 //                }
             }
         });
-        if(MyConnection.isOnline(DictionaryActivity.this))
+//        if(MyConnection.isOnline(DictionaryActivity.this))
         new GetDictionary().execute();
     }
 

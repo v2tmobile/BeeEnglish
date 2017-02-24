@@ -544,7 +544,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         btOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String oldPassword = etOldPassword.getText().toString();
+                String oldPassword = etOldPassword.getText().toString();
                 if (MyConnection.isOnline(HomeActivity.this)) {
                     String newPassword = etNewPassword.getText().toString();
                     String renewPassword = etReNewPassword.getText().toString();
@@ -560,7 +560,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                         if (newPassword.length() > 4) {
                             if (newPassword.equals(renewPassword)) {
                                 mActivityDialog.dismiss();
-                                new UpdateNewPassword(newPassword).execute();
+                                new UpdateNewPassword(oldPassword,newPassword).execute();
                             } else {
                                 etReNewPassword.setError(getString(R.string.err_password_not_match));
                             }
@@ -598,9 +598,11 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
     class UpdateNewPassword extends AsyncTask<Void, Void, ResponseData> {
 
+        private String mOldPassword;
         private String mPassword;
 
-        public UpdateNewPassword(String password) {
+        public UpdateNewPassword(String oldPassword, String password) {
+            mOldPassword = oldPassword;
             mPassword = password;
         }
 
@@ -611,7 +613,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
         @Override
         protected ResponseData doInBackground(Void... params) {
-            return MyConnection.getInstanceMyConnection(HomeActivity.this).updatePassWord(mUserId, mPassword);
+            return MyConnection.getInstanceMyConnection(HomeActivity.this).updatePassWord(mUserId, mOldPassword, mPassword);
         }
 
         @Override
@@ -620,10 +622,10 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
             try {
                 if (responseData.isResponseState()) {
                     JSONObject jsonObject = new JSONObject(responseData.getResponseData());
-                    if (jsonObject.getBoolean("success")) {
+                    if (!jsonObject.isNull("success") && jsonObject.getBoolean("success")) {
                         showSnackBar(R.string.success_change_pass);
                     } else {
-                        showSnackBar(responseData.getResponseData());
+                        showSnackBar(new JSONObject(responseData.getResponseData()).getJSONObject("error").getString("message"));
                     }
                 } else {
                     showSnackBar(responseData.getResponseData());

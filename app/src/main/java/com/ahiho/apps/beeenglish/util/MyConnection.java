@@ -86,11 +86,12 @@ public class MyConnection {
 //        hashMap.put("access_token", tokenKey);
         return performPostCall(url, hashMap,METHOD_POST);
     }
-    public ResponseData updatePassWord(String userId, String password) {
-        String url = MyConnection.BASE_URL + "users/update";
+    public ResponseData updatePassWord(String userId, String oldPassword, String password) {
+        String url = MyConnection.BASE_URL + "users/change-password";
         HashMap hashMap = new HashMap();
-        hashMap.put("user_id", userId);
-        hashMap.put("password", password);
+        hashMap.put("id", userId);
+        hashMap.put("password", oldPassword);
+        hashMap.put("new_password", password);
         return performPostCallUseHeader(url, hashMap,METHOD_POST);
     }
     public ResponseData refreshToken(String user) {
@@ -99,10 +100,10 @@ public class MyConnection {
         hashMap.put("username", user);
         return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
-    public ResponseData updateInfo(String userId,String avatar, String name,String mobile) {
+    public ResponseData updateInfo(String userId, String avatar, String username, String name,String mobile) {
         String url = MyConnection.BASE_URL + "users/update";
         HashMap hashMap = new HashMap();
-        hashMap.put("user_id", userId);
+        hashMap.put("id", userId);
         if(!avatar.isEmpty())
             hashMap.put("avatar", avatar);
         if(!mobile.isEmpty())
@@ -111,6 +112,7 @@ public class MyConnection {
             hashMap.put("first_name", name);
             hashMap.put("last_name", "");
         }
+        hashMap.put("username", username);
         return performPostCallUseHeader(url, hashMap,METHOD_POST);
     }
     public ResponseData getBooks() {
@@ -139,10 +141,11 @@ public class MyConnection {
         return performPostCallUseHeader(url, hashMap,METHOD_GET);
     }
 
-    public ResponseData signUp(String userName,String email, String password) {
+    public ResponseData signUp(String userName,String email, String mobile, String password) {
         String url = MyConnection.BASE_URL + "auth/register";
         HashMap hashMap = new HashMap();
         hashMap.put("username", userName);
+        hashMap.put("mobile", mobile);
         hashMap.put("password", password);
         hashMap.put("email", email);
         return performPostCall(url, hashMap,METHOD_POST);
@@ -192,6 +195,7 @@ public class MyConnection {
             }
             responseData.setResponseData(response);
         } catch (Exception e) {
+            Log.e("REQUEST EXCEPTION:", e.getMessage());
         } finally {
             if (conn != null)
                 conn.disconnect();

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -144,7 +145,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.OnConn
 
             @Override
             public void onError(FacebookException error) {
-
+                Log.e("Facebook Login", error.getMessage());
             }
         });
 
